@@ -49,7 +49,7 @@ func UserAddDesire(c *gin.Context) {
 // 用户点亮他人愿望
 func UserLightDesire(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
-	DesireID := c.MustGet("desire_id").(int)
+	DesireID := c.MustGet("wish_id").(int)
 	LightCount := model.GetUserLightCount(UserID)
 	// 判断点亮次数是否达到上限
 	if LightCount >= common.MaxLightCount {
@@ -107,6 +107,39 @@ func GetUserLightDesires(c *gin.Context) {
 func GetUserDesireByTypeZ(c *gin.Context) {
 	Type := c.MustGet("type").(int)
 	res := model.GetWishByCategories(Type)
+	if res.Status == common.CodeError {
+		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+		return
+	}
+	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+}
+
+// 用户删除愿望
+func DeleteUserDesire(c *gin.Context) {
+	DesireID := c.MustGet("wish_id").(int)
+	res := model.DeleteWish(DesireID)
+	if res.Status == common.CodeError {
+		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+		return
+	}
+	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+}
+
+// 用户取消点亮他人愿望()
+func CancelUserLight(c *gin.Context) {
+	DesireID := c.MustGet("wish_id").(int)
+	res := model.CancelLightDesire(DesireID)
+	if res.Status == common.CodeError {
+		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+		return
+	}
+	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+}
+
+// 用户实现愿望
+func AchieveUserDesire(c *gin.Context) {
+	DesireID := c.MustGet("wish_id").(int)
+	res := model.AchieveDesire(DesireID)
 	if res.Status == common.CodeError {
 		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
 		return
