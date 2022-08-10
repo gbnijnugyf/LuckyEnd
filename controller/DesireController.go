@@ -17,13 +17,6 @@ func UserAddDesire(c *gin.Context) {
 		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "绑定数据模型失败", err.Error()))
 		return
 	}
-
-	// desireMap := helper.Struct2Map(desireJson)
-
-	// if res, err := desireValidate.ValidateMap(desireMap, "add"); !res {
-	// 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "数据校验失败", err.Error()))
-	// 	return
-	// }
 	UserID := c.MustGet("user_id").(int)
 	School := c.MustGet("school").(int)
 	desireJson.UserID = UserID
