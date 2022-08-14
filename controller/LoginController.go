@@ -6,13 +6,12 @@ import (
 	"net/url"
 	"test/common"
 	"test/helper"
-	"test/model"
 
 	"github.com/gin-gonic/gin"
 )
 
 type login struct {
-	Email string
+	Email    string
 	Password string
 }
 
@@ -22,13 +21,13 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "数据绑定失败", nil))
 		return
 	}
-	loginUrl := "http://127.0.0.1:4523/m1/601369-0-default/Auth/Login"
-	payload := url.Values{"email":{userLogin.Email}, "secret":{userLogin.Password}}
+	loginUrl := "https://auth.itoken.team/Auth/Login"
+	payload := url.Values{"email": {userLogin.Email}, "secret": {userLogin.Password}}
 	res, err := http.PostForm(loginUrl, payload)
 	if err != nil {
 		fmt.Println("login error:" + err.Error())
 	}
-	
+
 }
 
 // func CheckUserEmail(c *gin.Context) {
