@@ -1,16 +1,29 @@
 package config
 
-var mailConfig map[string]interface{}
+import (
+	"fmt"
+	"io/ioutil"
 
-func init() {
-	mailConfig = make(map[string]interface{})
-	mailConfig["host"] = "smtp.163.com"
-	mailConfig["port"] = 465
-	mailConfig["from"] = "goproject"
-	mailConfig["username"] = "luxuetao0518@163.com"
-	mailConfig["password"] = "CLSVNTLRRSTGAZTY"
+	"gopkg.in/yaml.v2"
+)
+
+type mailConfig struct {
+	Host     string
+	Port     int
+	From     string
+	Username string
+	Password string
 }
 
-func GetMailConfig() map[string]interface{} {
-	return mailConfig
+func GetMailConfig() mailConfig {
+	var mailconfig mailConfig
+	yamlFile, err := ioutil.ReadFile("D:/yaml/mailconfig.yaml")
+	if err != nil {
+		fmt.Println("read file error:" + err.Error())
+	}
+	err = yaml.Unmarshal(yamlFile, &mailconfig)
+	if err != nil {
+		fmt.Println("unmarshal error:" + err.Error())
+	}
+	return mailconfig
 }

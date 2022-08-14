@@ -2,43 +2,48 @@ package helper
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"test/common"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type JwtClaim struct {
-	jwt.StandardClaims
-	Student_number string `json:"student_number"`
+	Student_number string
+	jwt.RegisteredClaims
 }
 
-func CreatrToken(student_number string) string {
-	claim := JwtClaim{}
-	claim.Student_number = student_number
-	claim.ExpiresAt = time.Now().In(common.ChinaTime).Add(168 * time.Hour).Unix()
-	claim.IssuedAt = time.Now().In(common.ChinaTime).Unix()
+var myKey = []byte("luxuetaoxuelu")
+
+func CreatToken(student_number string) (string, error) {
+	claim := JwtClaim{
+		Student_number: student_number,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().In(common.ChinaTime).Add(168 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now().In(common.ChinaTime)),
+		}}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
-	signedToken, err := token.SignedString([]byte("Matilda"))
+	tokenString, err := token.SignedString(myKey)
 	if err != nil {
-		log.Println(err)
+		return "", nil
 	}
-	return signedToken
+	return tokenString, nil
 }
 
 func VerifyToken(token string) (string, error) {
-	TempToken, err := jwt.ParseWithClaims(token, &JwtClaim{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("Matilda"), nil
+	tempToken, err := jwt.ParseWithClaims(token, &JwtClaim{}, func(token *jwt.Token) (interface{}, error) {
+		return myKey, nil
 	})
 	if err != nil {
 		return "", err
 	}
-	claims, ok := TempToken.Claims.(*JwtClaim)
+	claims, ok := tempToken.Claims.(*JwtClaim)
+	fmt.Println(claims)
 	if !ok {
-		return "", errors.New("发生错误")
+		return "", errors.New("claims error")
 	}
-	if err := TempToken.Claims.Valid(); err != nil {
+	if err := tempToken.Claims.Valid(); err != nil {
 		return "", err
 	}
 	return claims.Student_number, nil

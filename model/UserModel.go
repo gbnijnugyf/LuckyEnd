@@ -33,7 +33,7 @@ func LoginCheck(data User) helper.ReturnType {
 
 // 绑定邮箱
 func BindEmail(data User) helper.ReturnType {
-	err := db.Model(&User{}).Where("student_number = ?", data.IdcardNumber).Update(&data).Error
+	err := db.Model(&User{}).Where("student_number = ?", data.IdcardNumber).Updates(&data).Error
 	if err != nil {
 		return helper.ReturnType{Status: common.CodeError, Msg: "绑定邮箱失败", Data: err.Error()}
 	} else {

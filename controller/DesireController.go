@@ -14,7 +14,7 @@ func UserAddDesire(c *gin.Context) {
 	var desireJson model.Desire
 
 	if err := c.ShouldBindJSON(&desireJson); err != nil {
-		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "绑定数据模型失败", err.Error()))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "绑定数据模型失败", err.Error()))
 		return
 	}
 	UserID := c.MustGet("user_id").(int)
@@ -23,7 +23,7 @@ func UserAddDesire(c *gin.Context) {
 	desireJson.School = School
 
 	// 检查用户当前许愿次数
-	WishCount := model.GetUserWishCount(UserID)
+	WishCount := model.GetUserDesireCount(&UserID)
 	// 判断许愿总的次数是否超过上限
 	if WishCount >= common.MaxWishCount {
 		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "许愿次数已达上限", nil))
@@ -31,111 +31,119 @@ func UserAddDesire(c *gin.Context) {
 	}
 
 	desireJson.CreatAt = time.Now().In(common.ChinaTime)
-	res := model.AddDesire(desireJson)
-	if res.Status == common.CodeError {
-		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	res := model.AddDesire(&desireJson)
+	if !res {
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "添加愿望失败", nil))
 		return
 	}
-	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "添加愿望成功", nil))
 }
 
-// 用户点亮他人愿望
+// UserLightDesire用户点亮他人愿望
 func UserLightDesire(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
 	DesireID := c.MustGet("wish_id").(int)
-	LightCount := model.GetUserLightCount(UserID)
+	LightCount := model.GetUserLightCount(&UserID)
 	// 判断点亮次数是否达到上限
+	if LightCount == common.GetCountError {
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询错误", nil))
+		return
+	}
 	if LightCount >= common.MaxLightCount {
 		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "点亮愿望次数已达上限", nil))
 		return
 	}
-	LightCount = model.GetUserLightAtSameTimeCount(UserID)
+	LightCount = model.GetUserLightMeantimeCount(&UserID)
 	// 判断同时点亮次数是否达到上限
+	if LightCount == common.GetCountError {
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询错误", nil))
+		return
+	}
 	if LightCount >= common.MaxLightSameCount {
 		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "同时点亮愿望次数已达上限", nil))
 		return
 	}
-	res := model.LightDesire(DesireID, UserID)
+	res := model.LightDesire(&DesireID, &UserID)
 	if res.Status == common.CodeError {
-		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(res.Status, res.Msg, res.Data))
 		return
 	}
 	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
 }
 
-// 获取用户所有的愿望
+// GetUserAllDesires获取用户所有的愿望
 func GetUserAllDesires(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
-	res := model.GetUserAllDesire(UserID)
-	if res.Status == common.CodeError {
-		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	res, user := model.GetUserAllDesire(&UserID)
+	if !res {
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询失败", nil))
 		return
 	}
-	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "查询成功", user))
 }
 
-// 获取用户投递的愿望
+// GetUserCreateDesires获取用户投递的愿望
 func GetUserCreateDesires(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
-	res := model.GetUserCreateDesire(UserID)
-	if res.Status == common.CodeError {
-		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	res, desires := model.GetUserCreateDesire(&UserID)
+	if !res {
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询失败", nil))
 		return
 	}
-	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "查询成功", desires))
 }
 
-// 获取用户点亮的愿望
+// GetUserLightDesires获取用户点亮的愿望
 func GetUserLightDesires(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
-	res := model.GetUserLightDesire(UserID)
-	if res.Status == common.CodeError {
-		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	res, lights := model.GetUserLightDesire(&UserID)
+	if !res {
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询失败", nil))
 		return
 	}
-	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "查询成功", lights))
 }
 
-// 通过点击分类查看愿望
-func GetUserDesireByTypeZ(c *gin.Context) {
+// GetUserDesireByType通过点击分类查看愿望
+func GetUserDesireByType(c *gin.Context) {
 	Type := c.MustGet("type").(int)
-	res := model.GetWishByCategories(Type)
-	if res.Status == common.CodeError {
-		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	res, desires := model.GetDesireByCategories(&Type)
+	if !res {
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询失败", nil))
 		return
 	}
-	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "查询成功", desires))
 }
 
-// 用户删除愿望
+// DeleteUserDesire用户删除愿望
 func DeleteUserDesire(c *gin.Context) {
 	DesireID := c.MustGet("wish_id").(int)
-	res := model.DeleteWish(DesireID)
-	if res.Status == common.CodeError {
-		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	res := model.DeleteDesire(&DesireID)
+	if !res {
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeSuccess, "删除失败", nil))
 		return
 	}
-	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "删除成功", nil))
 }
 
-// 用户取消点亮他人愿望()
+// CancelUserLight用户取消点亮他人愿望
 func CancelUserLight(c *gin.Context) {
 	DesireID := c.MustGet("wish_id").(int)
-	res := model.CancelLightDesire(DesireID)
-	if res.Status == common.CodeError {
-		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	res := model.CancelLightDesire(&DesireID)
+	if !res {
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "删除失败", nil))
 		return
 	}
-	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "删除成功", nil))
 }
 
-// 用户实现愿望
+// AchieveUserDesire用户实现愿望
 func AchieveUserDesire(c *gin.Context) {
 	DesireID := c.MustGet("wish_id").(int)
-	res := model.AchieveDesire(DesireID)
-	if res.Status == common.CodeError {
-		c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	res := model.AchieveDesire(&DesireID)
+	if !res {
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "实现失败", nil))
 		return
 	}
-	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "实现成功", nil))
 }

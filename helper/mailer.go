@@ -13,11 +13,11 @@ func SendEmail(EmailAddress string) ReturnType {
 	m := gomail.NewMessage()
 	mailConfig := config.GetMailConfig()
 	html := "this is a test"
-	m.SetAddressHeader("From", mailConfig["username"].(string), mailConfig["from"].(string))
+	m.SetAddressHeader("From", mailConfig.Username, mailConfig.From)
 	m.SetHeader("To", EmailAddress)
 	m.SetHeader("Subject", "test")
 	m.SetBody("text/html", html)
-	send := gomail.NewDialer(mailConfig["host"].(string), mailConfig["port"].(int), mailConfig["username"].(string), mailConfig["password"].(string))
+	send := gomail.NewDialer(mailConfig.Host, mailConfig.Port, mailConfig.Username, mailConfig.Password)
 	err := send.DialAndSend(m)
 	if err != nil {
 		return ReturnType{Status: common.CodeError, Msg: "邮件发送失败", Data: err.Error()}
