@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 	"test/common"
 	"test/helper"
 	"test/model"
@@ -18,10 +19,7 @@ func UserAddDesire(c *gin.Context) {
 		return
 	}
 	UserID := c.MustGet("user_id").(int)
-	School := c.MustGet("school").(int)
 	desireJson.UserID = UserID
-	desireJson.School = School
-
 	// 检查用户当前许愿次数
 	WishCount := model.GetUserDesireCount(&UserID)
 	// 判断许愿总的次数是否超过上限
@@ -42,7 +40,8 @@ func UserAddDesire(c *gin.Context) {
 // UserLightDesire用户点亮他人愿望
 func UserLightDesire(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
-	DesireID := c.MustGet("wish_id").(int)
+	DesireId := c.PostForm("wish_id")
+	DesireID, _ := strconv.Atoi(DesireId)
 	LightCount := model.GetUserLightCount(&UserID)
 	// 判断点亮次数是否达到上限
 	if LightCount == common.GetCountError {
@@ -106,8 +105,9 @@ func GetUserLightDesires(c *gin.Context) {
 
 // GetUserDesireByType通过点击分类查看愿望
 func GetUserDesireByType(c *gin.Context) {
-	Type := c.MustGet("type").(int)
-	res, desires := model.GetDesireByCategories(&Type)
+	Type := c.PostForm("type")
+	desireType, _ := strconv.Atoi(Type)
+	res, desires := model.GetDesireByCategories(&desireType)
 	if !res {
 		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询失败", nil))
 		return
@@ -131,10 +131,10 @@ func CancelUserLight(c *gin.Context) {
 	DesireID := c.MustGet("wish_id").(int)
 	res := model.CancelLightDesire(&DesireID)
 	if !res {
-		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "删除失败", nil))
+		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "取消点亮失败", nil))
 		return
 	}
-	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "删除成功", nil))
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "取消点亮成功", nil))
 }
 
 // AchieveUserDesire用户实现愿望

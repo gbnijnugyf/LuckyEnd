@@ -4,9 +4,7 @@ import (
 	"time"
 )
 
-var Login bool
-
-const CodeExpries = -2
+const CodeExpires = -2
 const CodeError = -1
 const CodeSuccess = 0
 
@@ -26,4 +24,9 @@ const MaxLightSameCount = 2
 
 const GetCountError = -1
 
+const NoExist = "400 Bad Request"
+const PasError = "401 Unauthorized"
+const LoginSuccess = "200 OK"
+
+var Login bool
 var ChinaTime *time.Location

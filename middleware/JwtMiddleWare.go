@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 	"test/common"
-	"test/controller"
 	"test/helper"
+	"test/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,13 +19,13 @@ func AuthMiddleware(c *gin.Context) {
 	}
 	student_number, err := helper.VerifyToken(token)
 	if err != nil {
-		c.JSON(http.StatusForbidden, helper.ApiReturn(common.CodeExpries, "权限不足", nil))
+		c.JSON(http.StatusForbidden, helper.ApiReturn(common.CodeExpires, "权限不足", nil))
 		c.Abort()
 		return
 	}
-	UserID := controller.GeuUserIDFromDB(student_number)
+	UserID, _ := model.GetUserIDByStudentNumber(student_number)
 	if UserID == common.CodeError {
-		c.JSON(http.StatusForbidden, helper.ApiReturn(common.CodeExpries, "权限不足", nil))
+		c.JSON(http.StatusForbidden, helper.ApiReturn(common.CodeExpires, "权限不足", nil))
 		log.Println("=========异常登录记录==========")
 		log.Println(student_number)
 		c.Abort()

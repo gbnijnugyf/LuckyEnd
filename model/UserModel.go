@@ -31,41 +31,53 @@ func LoginCheck(data User) helper.ReturnType {
 	}
 }
 
-// 绑定邮箱
-func BindEmail(data User) helper.ReturnType {
-	err := db.Model(&User{}).Where("student_number = ?", data.IdcardNumber).Updates(&data).Error
-	if err != nil {
-		return helper.ReturnType{Status: common.CodeError, Msg: "绑定邮箱失败", Data: err.Error()}
-	} else {
-		return helper.ReturnType{Status: common.CodeSuccess, Msg: "绑定邮箱成功", Data: data.Email}
-	}
-}
-
 // 创建新用户
-func CreateUser(data User) helper.ReturnType {
+func CreateUser(data User) error {
 	err := db.Create(&data).Error
-	if err != nil {
-		return helper.ReturnType{Status: common.CodeError, Msg: "创建新用户失败", Data: err.Error()}
-	}
-	return helper.ReturnType{Status: common.CodeSuccess, Msg: "创建新用户成功", Data: data}
+	return err
 }
 
 // 通过student_number查询用户的ID
-func GetUserIDByStudentNumber(student_number string) helper.ReturnType {
+func GetUserIDByStudentNumber(student_number string) (int, error) {
 	var user User
 	err := db.Model(&User{}).Where("student_number = ?", student_number).First(&user).Error
 	if err != nil {
-		return helper.ReturnType{Status: common.CodeError, Msg: "查询失败，数据库错误", Data: err.Error()}
+		return -1, err
 	}
-	return helper.ReturnType{Status: common.CodeSuccess, Msg: "查询成功", Data: user}
+	return user.ID, nil
 }
 
-// 通过UserID查询用户的邮箱是否存在
-func GetUserEmailByUserID(UserID int) string {
-	var user User
-	err := db.Model(&User{}).Where("id = ?", UserID).Find(&user).Error
+func GetUserInfo(UserID int) (*User, error) {
+	var user *User
+	err := db.Model(&User{}).Where("id = ?", UserID).First(user).Error
 	if err != nil {
-		return ""
+		return nil, err
 	}
-	return user.Email
+	return user, nil
 }
+
+func UserCheck(email string) error {
+	var user *User
+	err := db.Model(&User{}).Where("email = ?", email).First(user).Error
+	return err
+}
+
+// // 通过UserID查询用户的邮箱是否存在
+// func GetUserEmailByUserID(UserID int) string {
+// 	var user User
+// 	err := db.Model(&User{}).Where("id = ?", UserID).Find(&user).Error
+// 	if err != nil {
+// 		return ""
+// 	}
+// 	return user.Email
+// }
+
+// // 绑定邮箱
+// func BindEmail(data User) helper.ReturnType {
+// 	err := db.Model(&User{}).Where("student_number = ?", data.IdcardNumber).Updates(&data).Error
+// 	if err != nil {
+// 		return helper.ReturnType{Status: common.CodeError, Msg: "绑定邮箱失败", Data: err.Error()}
+// 	} else {
+// 		return helper.ReturnType{Status: common.CodeSuccess, Msg: "绑定邮箱成功", Data: data.Email}
+// 	}
+// }
