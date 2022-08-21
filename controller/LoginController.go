@@ -3,12 +3,11 @@ package controller
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"github.com/shawu21/test/common"
+	"github.com/shawu21/test/helper"
+	"github.com/shawu21/test/model"
 	"mime/multipart"
 	"net/http"
-	"test/common"
-	"test/helper"
-	"test/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,6 +17,8 @@ type login struct {
 	Password string
 }
 
+var loginUrl string = "https://dev-auth.itoken.team/Auth/Login"
+
 func Login(c *gin.Context) {
 	var userLogin login
 	var User *model.User
@@ -25,25 +26,35 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "数据绑定失败", nil))
 		return
 	}
-	loginUrl := "https://auth.itoken.team/Auth/Login"
+	// ===============================================
 	buf := &bytes.Buffer{}
 	bodywrite := multipart.NewWriter(buf)
 	bodywrite.WriteField("email", userLogin.Email)
 	bodywrite.WriteField("secret", userLogin.Password)
 	contentType := bodywrite.FormDataContentType()
-	bodywrite.Close() //不能用defer，在请求体完成之后，需要将结尾符补上
+	err := bodywrite.Close() //不能用defer，在请求体完成之后，需要将结尾符补上
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "io failed", err))
+		return
+	}
 	cc := &http.Client{}
 	req, _ := http.NewRequest(http.MethodPost, loginUrl, buf)
 	req.Header.Set("Content-Type", contentType)
 	resp, _ := cc.Do(req)
-	body, _ := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
-	switch resp.Status {
-	case common.NoExist:
+	body := make([]byte, 0)
+	_, err = resp.Body.Read(body)
+	// ============================================
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "get data form auth failed", err))
+		return
+	}
+	switch resp.StatusCode {
+	case http.StatusBadRequest:
 		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "用户不存在", nil))
-	case common.PasError:
-		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "密码错误", nil))
-	case common.LoginSuccess:
+	case http.StatusUnauthorized:
+		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "用户名或密码错误", nil))
+	case http.StatusOK:
 		// 判断用户是否已经注册
 		if err := model.UserCheck(userLogin.Email); err != nil {
 			if err := c.ShouldBindJSON(User); err != nil {
@@ -54,6 +65,7 @@ func Login(c *gin.Context) {
 	}
 	fmt.Println(resp)
 	fmt.Println(string(body))
+	// TODO: get info from auth
 }
 
 // func CheckUserEmail(c *gin.Context) {

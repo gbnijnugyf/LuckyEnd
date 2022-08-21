@@ -4,9 +4,11 @@ import (
 	"time"
 )
 
-const CodeExpires = -2
-const CodeError = -1
-const CodeSuccess = 0
+const (
+	CodeExpires = -2
+	CodeError   = -1
+	CodeSuccess = 0
+)
 
 const WishNotLight = 0
 const WishHaveLight = 1
@@ -28,5 +30,12 @@ const NoExist = "400 Bad Request"
 const PasError = "401 Unauthorized"
 const LoginSuccess = "200 OK"
 
-var Login bool
+var LoginType bool
 var ChinaTime *time.Location
+
+type Gender int
+
+const (
+	Male Gender = iota + 1
+	FeMale
+)

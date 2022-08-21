@@ -2,8 +2,8 @@ package helper
 
 import (
 	"fmt"
-	"test/common"
-	"test/config"
+	"github.com/shawu21/test/common"
+	"github.com/shawu21/test/config"
 	"time"
 
 	"gopkg.in/gomail.v2"
