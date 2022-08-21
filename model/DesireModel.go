@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+type ViewDesire struct {
+	Desire   Desire   `json:"desire"`
+	ViewUser ViewUser `json:"view_user"`
+}
+
 type Desire struct {
 	ID       int       `json:"wish_id" gorm:"id" uri:"wish_id" form:"wish_id"`
 	Desire   string    `json:"wish" gorm:"desire"`
@@ -16,21 +21,17 @@ type Desire struct {
 	State    int       `json:"state" gorm:"state"`
 	Type     int       `json:"type" gorm:"type" form:"categories"`
 	School   int       `json:"school" gorm:"school"`
-	LightID  int       `gorm:"light_id"` //点亮人外键
-	UserID   int       `gorm:"user_id"`  //投递者外键
+	LightID  int       `json:"lightId" gorm:"light_id"` //点亮人外键
+	UserID   int       `json:"userId" gorm:"user_id"`   //投递者外键
 }
 
-// 用户添加愿望
-func AddDesire(data *Desire) bool {
-	err := db.Model(&Desire{}).Omit("light_at").Create(data).Error // 没有.Error会报错
-	if err != nil {
-		fmt.Println("add desire error:" + err.Error())
-		return false
-	}
-	return true
+// AddDesire 用户添加愿望
+func AddDesire(data *Desire) error {
+	err := db.Model(&Desire{}).Omit("light_at").Create(data).Error
+	return err
 }
 
-// 用户点亮他人愿望
+// LightDesire 用户点亮他人愿望
 func LightDesire(DesireID *int, ID *int) helper.ReturnType {
 	var desire Desire
 	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Find(&desire).Error
@@ -54,17 +55,13 @@ func LightDesire(DesireID *int, ID *int) helper.ReturnType {
 	return helper.ReturnType{Status: common.CodeSuccess, Msg: "点亮愿望失败", Data: desire}
 }
 
-// 用户实现自己愿望
-func AchieveDesire(DesireID *int) bool {
+// AchieveDesire 用户实现自己愿望
+func AchieveDesire(DesireID *int) error {
 	err := db.Model(&Desire{}).Where("id = ?", DesireID).Updates(Desire{State: common.WishHaveRealize, FinishAt: time.Now().In(common.ChinaTime)}).Error
-	if err != nil {
-		fmt.Println("achieve desire error:" + err.Error())
-		return false
-	}
-	return true
+	return err
 }
 
-// 按分类查看愿望
+// GetDesireByCategories 按分类查看愿望
 func GetDesireByCategories(typ *int) (bool, []*Desire) {
 	var desire []*Desire
 	err := db.
@@ -78,7 +75,7 @@ func GetDesireByCategories(typ *int) (bool, []*Desire) {
 	return true, desire
 }
 
-// 用户删除愿望
+// todo: 把所有的model加上error返回
 func DeleteDesire(ID *int) bool {
 	err := db.Model(&Desire{}).Where("user_id = ?", *ID).
 		Update("state", common.WishHaveDelete).
