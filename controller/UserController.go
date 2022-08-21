@@ -1,10 +1,10 @@
 package controller
 
 import (
+	"github.com/shawu21/test/common"
+	"github.com/shawu21/test/helper"
+	"github.com/shawu21/test/model"
 	"net/http"
-	"test/common"
-	"test/helper"
-	"test/model"
 
 	"github.com/gin-gonic/gin"
 )

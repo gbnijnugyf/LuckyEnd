@@ -1,6 +1,6 @@
 package model
 
-import "test/common"
+import "github.com/shawu21/test/common"
 
 type User struct {
 	ID           int           `json:"id" gorm:"id"`

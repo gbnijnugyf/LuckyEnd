@@ -1,8 +1,8 @@
 package model
 
 import (
+	"github.com/shawu21/test/mysql"
 	"gorm.io/gorm"
-	"test/mysql"
 )
 
 var db *gorm.DB = mysql.MySqlDb

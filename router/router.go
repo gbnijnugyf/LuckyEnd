@@ -1,8 +1,8 @@
 package router
 
 import (
-	"test/controller"
-	"test/middleware"
+	"github.com/shawu21/test/controller"
+	"github.com/shawu21/test/middleware"
 
 	"github.com/gin-gonic/gin"
 )

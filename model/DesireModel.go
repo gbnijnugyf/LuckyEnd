@@ -2,8 +2,8 @@ package model
 
 import (
 	"fmt"
-	"test/common"
-	"test/helper"
+	"github.com/shawu21/test/common"
+	"github.com/shawu21/test/helper"
 	"time"
 )
 

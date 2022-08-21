@@ -1,4 +1,4 @@
-module test
+module github.com/shawu21/test
 
 go 1.18
 
