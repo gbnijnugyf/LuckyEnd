@@ -2,31 +2,14 @@ package helper
 
 import (
 	"fmt"
-	"test/common"
-	"test/config"
+	"github.com/shawu21/test/common"
+	"github.com/shawu21/test/config"
 	"time"
 
 	"gopkg.in/gomail.v2"
 )
 
-func SendEmail(EmailAddress string) ReturnType {
-	m := gomail.NewMessage()
-	mailConfig := config.GetMailConfig()
-	html := "this is a test"
-	m.SetAddressHeader("From", mailConfig.Username, mailConfig.From)
-	m.SetHeader("To", EmailAddress)
-	m.SetHeader("Subject", "test")
-	m.SetBody("text/html", html)
-	send := gomail.NewDialer(mailConfig.Host, mailConfig.Port, mailConfig.Username, mailConfig.Password)
-	err := send.DialAndSend(m)
-	if err != nil {
-		return ReturnType{Status: common.CodeError, Msg: "邮件发送失败", Data: err.Error()}
-	} else {
-		return ReturnType{Status: common.CodeSuccess, Msg: "邮件发送成功", Data: ""}
-	}
-}
-
-func GetHTMLContent(MsgType int, WishContent string, MessageContent string) string {
+func getHtmlContent(MsgType int, DesireContent string, MessageContent string) string {
 	SendTime := fmt.Sprintf("%02d-%02d-%02d %02d:%02d:%02d", time.Now().In(common.ChinaTime).Year(), time.Now().In(common.ChinaTime).Month(), time.Now().In(common.ChinaTime).Day(), time.Now().In(common.ChinaTime).Hour(), time.Now().In(common.ChinaTime).Minute(), time.Now().In(common.ChinaTime).Second())
 	html := ""
 	switch MsgType {
@@ -68,7 +51,7 @@ func GetHTMLContent(MsgType int, WishContent string, MessageContent string) stri
 							<p> 此邮箱为系统邮箱，请勿回复。</p>
 							<p> 发送于 %s </p>
 						</div>
-					<div>`, WishContent, MessageContent, SendTime)
+					<div>`, DesireContent, MessageContent, SendTime)
 	case common.HaveAchieve:
 		html = fmt.Sprintf(`<div>
 								<div>
@@ -84,7 +67,7 @@ func GetHTMLContent(MsgType int, WishContent string, MessageContent string) stri
 									<p> 此邮箱为系统邮箱，请勿回复。</p>
 									<p> 发送于 %s </p>
 								</div>
-							<div>`, WishContent, SendTime)
+							<div>`, DesireContent, SendTime)
 	case common.DeleteWish:
 		html = fmt.Sprintf(`<div>
 								<div>
@@ -103,7 +86,24 @@ func GetHTMLContent(MsgType int, WishContent string, MessageContent string) stri
 									<p> 此邮箱为系统邮箱，请勿回复。</p>
 									<p> 发送于 %s </p>
 								</div>
-							<div>`, WishContent, SendTime)
+							<div>`, DesireContent, SendTime)
 	}
 	return html
+}
+
+func SendMail(EmailAddress string, MsgType int, DesireContent string, MessageContent string) error {
+
+	mailConfig := config.GetMailConfig()
+	html := getHtmlContent(MsgType, DesireContent, MessageContent)
+	message := gomail.NewMessage()
+	message.SetAddressHeader("From", mailConfig.From, mailConfig.Fromname)
+	message.SetHeader("To", EmailAddress)
+	message.SetHeader("Subject", "[小幸运2021]邮件通知")
+	message.SetBody("text/html", html)
+
+	dia := gomail.NewDialer(mailConfig.Host, mailConfig.Port, mailConfig.Username, mailConfig.Password)
+
+	err := dia.DialAndSend(message)
+
+	return err
 }

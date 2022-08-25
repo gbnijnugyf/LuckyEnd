@@ -1,11 +1,11 @@
 package middleware
 
 import (
+	"github.com/shawu21/test/common"
+	"github.com/shawu21/test/helper"
+	"github.com/shawu21/test/model"
 	"log"
 	"net/http"
-	"test/common"
-	"test/helper"
-	"test/model"
 
 	"github.com/gin-gonic/gin"
 )

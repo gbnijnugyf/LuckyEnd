@@ -3,7 +3,7 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"test/common"
+	"github.com/shawu21/test/common"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -16,9 +16,9 @@ type JwtClaim struct {
 
 var myKey = []byte("luxuetaoxuelu")
 
-func CreatToken(student_number string) (string, error) {
+func CreatToken(studentNumber string) (string, error) {
 	claim := JwtClaim{
-		Student_number: student_number,
+		Student_number: studentNumber,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().In(common.ChinaTime).Add(168 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now().In(common.ChinaTime)),

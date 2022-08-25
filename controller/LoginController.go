@@ -1,59 +1,49 @@
 package controller
 
 import (
-	"bytes"
-	"fmt"
-	"io/ioutil"
-	"mime/multipart"
+	"github.com/shawu21/test/common"
+	"github.com/shawu21/test/helper"
+	"github.com/shawu21/test/model"
+	"github.com/shawu21/test/service"
 	"net/http"
-	"test/common"
-	"test/helper"
-	"test/model"
 
 	"github.com/gin-gonic/gin"
 )
 
-type login struct {
-	Email    string
-	Password string
-}
-
 func Login(c *gin.Context) {
-	var userLogin login
-	var User *model.User
-	if err := c.ShouldBindJSON(&userLogin); err != nil {
+	var userLogin *model.UserLogin
+	var user *model.User
+	if err := c.ShouldBindJSON(userLogin); err != nil {
 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "数据绑定失败", nil))
 		return
 	}
-	loginUrl := "https://auth.itoken.team/Auth/Login"
-	buf := &bytes.Buffer{}
-	bodywrite := multipart.NewWriter(buf)
-	bodywrite.WriteField("email", userLogin.Email)
-	bodywrite.WriteField("secret", userLogin.Password)
-	contentType := bodywrite.FormDataContentType()
-	bodywrite.Close() //不能用defer，在请求体完成之后，需要将结尾符补上
-	cc := &http.Client{}
-	req, _ := http.NewRequest(http.MethodPost, loginUrl, buf)
-	req.Header.Set("Content-Type", contentType)
-	resp, _ := cc.Do(req)
-	body, _ := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	switch resp.Status {
-	case common.NoExist:
-		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "用户不存在", nil))
-	case common.PasError:
-		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "密码错误", nil))
-	case common.LoginSuccess:
-		// 判断用户是否已经注册
-		if err := model.UserCheck(userLogin.Email); err != nil {
-			if err := c.ShouldBindJSON(User); err != nil {
-				c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "数据绑定错误", nil))
-			}
-
+	accessToken, err := service.SendForm(userLogin.Email, userLogin.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "登录失败", err))
+		return
+	}
+	if accessToken == "" {
+		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "用户名不存在或密码错误", nil))
+		return
+	}
+	if err := model.UserCheck(userLogin.Email); err != nil {
+		user, err = service.GetInfo(accessToken)
+		if err != nil {
+			c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "获取用户信息失败", nil))
+			return
+		}
+		err = model.CreateUser(user)
+		if err != nil {
+			c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "创建用户失败", nil))
+			return
 		}
 	}
-	fmt.Println(resp)
-	fmt.Println(string(body))
+	myToken, err := helper.CreatToken(user.IdcardNumber)
+	if err != nil {
+		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "创建token失败", nil))
+		return
+	}
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "创建用户成功", myToken))
 }
 
 // func CheckUserEmail(c *gin.Context) {

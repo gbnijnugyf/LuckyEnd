@@ -1,8 +1,8 @@
 package router
 
 import (
-	"test/controller"
-	"test/middleware"
+	"github.com/shawu21/test/controller"
+	"github.com/shawu21/test/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +16,7 @@ func Routers(r *gin.Engine) {
 		api.GET("/user/info/wishman", controller.GetUserInfo)
 		api.GET("/user/info/lightman", controller.GetUserInfo)
 
-		wishes := api.Group("/wishes")
+		wishes := api.Group("/desires")
 		{
 			wishes.POST("/add", controller.UserAddDesire)
 			wishes.POST("/light", controller.UserLightDesire)
@@ -24,7 +24,7 @@ func Routers(r *gin.Engine) {
 			wishes.GET("/user/post", controller.GetUserCreateDesires)
 			wishes.GET("/user/light", controller.GetUserLightDesires)
 			wishes.GET("/categories", controller.GetUserDesireByType)
-			wishes.DELETE("", controller.DeleteUserDesire)
+			wishes.DELETE("/delete", controller.DeleteUserDesire)
 			wishes.POST("/giveup", controller.CancelUserLight)
 		}
 

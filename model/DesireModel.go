@@ -2,14 +2,19 @@ package model
 
 import (
 	"fmt"
-	"test/common"
-	"test/helper"
+	"github.com/shawu21/test/common"
+	"github.com/shawu21/test/helper"
 	"time"
 )
 
+type ViewDesire struct {
+	Desire   Desire   `json:"desire"`
+	ViewUser ViewUser `json:"view_user"`
+}
+
 type Desire struct {
-	ID       int       `json:"wish_id" gorm:"id" uri:"wish_id" form:"wish_id"`
-	Desire   string    `json:"wish" gorm:"desire"`
+	ID       int       `json:"desire_id" gorm:"id" uri:"desire_id" form:"desire_id"`
+	Desire   string    `json:"desire" gorm:"desire"`
 	LightAt  time.Time `json:"light_at,omitempty" gorm:"light_at"`
 	CreatAt  time.Time `json:"creat_at" gorm:"creat_at"`
 	FinishAt time.Time `json:"finish_at" gorm:"finish_at"`
@@ -20,17 +25,11 @@ type Desire struct {
 	UserID   int       `gorm:"user_id"`  //投递者外键
 }
 
-// 用户添加愿望
-func AddDesire(data *Desire) bool {
+func AddDesire(data *Desire) error {
 	err := db.Model(&Desire{}).Omit("light_at").Create(data).Error // 没有.Error会报错
-	if err != nil {
-		fmt.Println("add desire error:" + err.Error())
-		return false
-	}
-	return true
+	return err
 }
 
-// 用户点亮他人愿望
 func LightDesire(DesireID *int, ID *int) helper.ReturnType {
 	var desire Desire
 	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Find(&desire).Error
@@ -54,17 +53,11 @@ func LightDesire(DesireID *int, ID *int) helper.ReturnType {
 	return helper.ReturnType{Status: common.CodeSuccess, Msg: "点亮愿望失败", Data: desire}
 }
 
-// 用户实现自己愿望
-func AchieveDesire(DesireID *int) bool {
+func AchieveDesire(DesireID *int) error {
 	err := db.Model(&Desire{}).Where("id = ?", DesireID).Updates(Desire{State: common.WishHaveRealize, FinishAt: time.Now().In(common.ChinaTime)}).Error
-	if err != nil {
-		fmt.Println("achieve desire error:" + err.Error())
-		return false
-	}
-	return true
+	return err
 }
 
-// 按分类查看愿望
 func GetDesireByCategories(typ *int) (bool, []*Desire) {
 	var desire []*Desire
 	err := db.
@@ -78,32 +71,16 @@ func GetDesireByCategories(typ *int) (bool, []*Desire) {
 	return true, desire
 }
 
-// 用户删除愿望
-func DeleteDesire(ID *int) bool {
-	err := db.Model(&Desire{}).Where("user_id = ?", *ID).
-		Update("state", common.WishHaveDelete).
-		Error
-	if err != nil {
-		fmt.Println("delete desire error:" + err.Error())
-		return false
-	}
-	return true
+func DeleteDesire(ID *int) error {
+	err := db.Model(&Desire{}).Where("user_id = ?", *ID).Update("state", common.WishHaveDelete).Error
+	return err
 }
 
-// 用户取消点亮愿望
-func CancelLightDesire(DesireID *int) bool {
-	err := db.
-		Model(&Desire{}).Where("id = ?", *DesireID).
-		Updates(Desire{State: common.WishNotLight, LightID: -1}).
-		Error
-	if err != nil {
-		fmt.Println("cancel light error:" + err.Error())
-		return false
-	}
-	return true
+func CancelLightDesire(DesireID *int) error {
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Updates(Desire{State: common.WishNotLight, LightID: -1}).Error
+	return err
 }
 
-// 查询投递愿望数量
 func GetUserDesireCount(ID *int) int64 {
 	var count int64
 	err := db.
@@ -115,7 +92,6 @@ func GetUserDesireCount(ID *int) int64 {
 	return count
 }
 
-// 查询总共点亮愿望数量
 func GetUserLightCount(ID *int) int64 {
 	var count int64
 	err := db.
@@ -127,7 +103,6 @@ func GetUserLightCount(ID *int) int64 {
 	return count
 }
 
-// 查询同时点亮愿望数量
 func GetUserLightMeantimeCount(ID *int) int64 {
 	var count int64
 	err := db.
@@ -137,4 +112,10 @@ func GetUserLightMeantimeCount(ID *int) int64 {
 		return common.GetCountError
 	}
 	return count
+}
+
+func DesireContentByID(ID *int) (string, error) {
+	var desire Desire
+	err := db.Model(&Desire{}).Where("id = ?").Find(&desire).Error
+	return desire.Desire, err
 }
