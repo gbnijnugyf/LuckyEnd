@@ -4,24 +4,8 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="470eb6e3-4acf-4920-9c4e-409b04a4abff" name="Changes" comment="">
+    <list default="true" id="470eb6e3-4acf-4920-9c4e-409b04a4abff" name="Changes" comment="&quot;test&quot;">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/define.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/define.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/mail.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/mail.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/session.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/DesireController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/DesireController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/LoginController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/LoginController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/UserController.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/UserController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helper/jwt.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/jwt.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helper/mailer.go" beforeDir="false" afterPath="$PROJECT_DIR$/helper/mailer.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/middleware/JwtMiddleWare.go" beforeDir="false" afterPath="$PROJECT_DIR$/middleware/JwtMiddleWare.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/CommonModel.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/CommonModel.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/DesireModel.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/DesireModel.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/UserModel.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/UserModel.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/router/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/router.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.go" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,6 +21,17 @@
   </component>
   <component name="GOROOT" url="file://$PROJECT_DIR$/../Go" />
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -81,6 +76,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="&quot;test&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;test&quot;" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
