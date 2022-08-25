@@ -1,15 +1,16 @@
 package controller
 
 import (
-	"github.com/shawu21/test/common"
-	"github.com/shawu21/test/helper"
-	"github.com/shawu21/test/model"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/shawu21/test/common"
+	"github.com/shawu21/test/helper"
+	"github.com/shawu21/test/model"
+
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 func UserAddDesire(c *gin.Context) {
@@ -110,8 +111,17 @@ func GetUserLightDesires(c *gin.Context) {
 }
 
 func GetUserDesireByType(c *gin.Context) {
-	Type := c.Query("categoires")
-	desireType, _ := strconv.Atoi(Type)
+	Type, ok := c.GetQuery("categoires")
+	if !ok {
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "type is empty", nil))
+		return
+	}
+	desireType, err := strconv.Atoi(Type)
+	if err != nil {
+		log.Errorf("cannot convert type into int err :%+v", err)
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "type is not right", err))
+		return
+	}
 	res, desires := model.GetDesireByCategories(&desireType)
 	if !res {
 		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询失败", nil))
