@@ -2,53 +2,14 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"time"
+	"net/url"
+	"strings"
 )
-
-// type login struct {
-// 	Email    string
-// 	Password string
-// }
-
-func Login() {
-	// if err := c.ShouldBindJSON(&userLogin); err != nil {
-	// 	c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "数据绑定失败", nil))
-	// 	return
-	// }
-	loginUrl := "https://dev-auth.itoken.team/Auth/Login"
-	reqBody := &bytes.Buffer{}
-	writer := multipart.NewWriter(reqBody)
-	defer writer.Close()
-	emailValue, err := writer.CreateFormField("email")
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// }
-	secretValue, _ := writer.CreateFormField("secret")
-	_, _ = emailValue.Write([]byte("2982271907@qq.com"))
-	_, _ = secretValue.Write([]byte("lxt237156"))
-	req, err := http.NewRequest(http.MethodPost, loginUrl, reqBody)
-	if err != nil {
-		fmt.Println("login error:" + err.Error())
-		return
-	}
-	cc := http.Client{
-		Timeout: time.Second * 5,
-	}
-	resp, err := cc.Do(req)
-	if err != nil {
-		fmt.Println("client error:" + err.Error())
-		return
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("read error:" + err.Error())
-	}
-	fmt.Println(string(body))
-}
 
 func Login2() {
 	loginUrl := "https://dev-auth.itoken.team/Auth/Login"
@@ -64,10 +25,74 @@ func Login2() {
 	resp, _ := cc.Do(req)
 	body, _ := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
-	fmt.Println(resp.Status)
+	fmt.Println(resp.StatusCode)
+	res := make(map[string]interface{})
+	err := json.Unmarshal(body, &res)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(res["accessToken"])
 	fmt.Println(string(body))
 }
 
+func GetInfo(token string) {
+	InfoUrl := "https://dev-auth.itoken.team/Profile"
+	req, _ := http.NewRequest(http.MethodGet, InfoUrl, nil)
+	accessToken := fmt.Sprintf("Bearer %s", token)
+	req.Header.Add("Authorization", accessToken)
+	cc := &http.Client{}
+	resp, err := cc.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+	body, _ := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+
+	fmt.Println(resp.StatusCode)
+	res := make(map[string]interface{})
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(res)
+}
+
+var loginUrl string = "https://dev-auth.itoken.team/Auth/Login"
+
+func SendForm(email, secret string) (string, error) {
+	data := url.Values{}
+
+	data.Add("email", email)
+	data.Add("secret", secret)
+	req, err := http.NewRequest(http.MethodPost, loginUrl, strings.NewReader(data.Encode()))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	cc := http.Client{}
+	resp, err := cc.Do(req)
+	if err != nil {
+		return "", err
+	}
+	body := make([]byte, 0)
+	_, err = resp.Body.Read(body)
+	if err != nil {
+		return "", err
+	}
+	// 再处理body
+	res := make(map[string]interface{})
+	err = json.Unmarshal(body, &res)
+	fmt.Println(res["accessToken"])
+	token := res["accessToken"].(string)
+	return token, err
+}
+
 func main() {
-	Login2()
+	//Login2()
+	//GetInfo("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6IjI5ODIyNzE5MDdAcXEuY29tIiwiQXZhdGFyVXJsIjoiIiwiTmljayI6IiIsIlRva2VuVHlwZSI6IkFjY2Vzc1Rva2VuIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiIwOGRhN2U4Ni05Nzk2LTQ1ZTAtODFhMi1iM2EyY2MzNjQ2OGIiLCJuYmYiOjE2NjEzOTgwNDMsImV4cCI6MTY2MTM5ODY0MywiaXNzIjoiaXd1dC1iYWNrZW5kIiwiYXVkIjoiaXd1dC1hcHAifQ.OhV03qSYvU9k3tq_D0usR1Tc_Dr1_p02XJlmVms-_Pg")
+	token, err := SendForm("2982271907@qq.com", "lxt237156")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(token)
 }
