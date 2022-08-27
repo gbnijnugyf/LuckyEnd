@@ -57,6 +57,7 @@ func GetUserInfo(UserID int) (*User, error) {
 	return user, nil
 }
 
+// UserCheck check user if exists
 func UserCheck(email string) error {
 	var user *User
 	err := db.Model(&User{}).Where("email = ?", email).First(user).Error
