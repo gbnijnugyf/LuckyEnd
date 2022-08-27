@@ -2,9 +2,10 @@ package helper
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/shawu21/test/common"
 	"github.com/shawu21/test/config"
-	"time"
 
 	"gopkg.in/gomail.v2"
 )
@@ -96,7 +97,7 @@ func SendMail(EmailAddress string, MsgType int, DesireContent string, MessageCon
 	mailConfig := config.GetMailConfig()
 	html := getHtmlContent(MsgType, DesireContent, MessageContent)
 	message := gomail.NewMessage()
-	message.SetAddressHeader("From", mailConfig.From, mailConfig.Fromname)
+	message.SetAddressHeader("From", mailConfig.From, mailConfig.FromName)
 	message.SetHeader("To", EmailAddress)
 	message.SetHeader("Subject", "[小幸运2021]邮件通知")
 	message.SetBody("text/html", html)
