@@ -10,15 +10,16 @@ import (
 )
 
 type JwtClaim struct {
-	Student_number string
+	StudentNumber string
 	jwt.RegisteredClaims
 }
 
-var myKey = []byte("luxuetaoxuelu")
+// this key is the most dangerous!!!! MUST BE DIFFICULT TO GUESS
+var myKey = []byte("fahkdslfhakldsjfklasdk321084710jfd")
 
 func CreatToken(studentNumber string) (string, error) {
 	claim := JwtClaim{
-		Student_number: studentNumber,
+		StudentNumber: studentNumber,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().In(common.ChinaTime).Add(168 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now().In(common.ChinaTime)),
@@ -46,5 +47,5 @@ func VerifyToken(token string) (string, error) {
 	if err := tempToken.Claims.Valid(); err != nil {
 		return "", err
 	}
-	return claims.Student_number, nil
+	return claims.StudentNumber, nil
 }

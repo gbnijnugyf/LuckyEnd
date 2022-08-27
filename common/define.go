@@ -18,10 +18,10 @@ const (
 )
 
 const (
-	LightWish   = 0
-	CancelLight = 1
-	DeleteWish  = 2
-	HaveAchieve = 3
+	LightWish int = iota
+	CancelLight
+	DeleteWish
+	HaveAchieve
 )
 
 const (

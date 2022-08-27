@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"gopkg.in/yaml.v2"
 )
@@ -11,14 +11,14 @@ type MailConfig struct {
 	Host     string
 	Port     int
 	From     string
-	Fromname string
+	FromName string
 	Username string
 	Password string
 }
 
 func GetMailConfig() MailConfig {
 	var mailConfig MailConfig
-	yamlFile, err := ioutil.ReadFile("D:/yaml/mailconfig.yaml")
+	yamlFile, err := os.ReadFile("../conf/mailConfig.yaml")
 	if err != nil {
 		fmt.Println("read file error:" + err.Error())
 	}

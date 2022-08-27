@@ -1,21 +1,25 @@
 package controller
 
 import (
-	"github.com/shawu21/test/common"
-	"github.com/shawu21/test/helper"
-	"github.com/shawu21/test/model"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/pkg/errors"
+
+	"github.com/shawu21/test/common"
+	"github.com/shawu21/test/helper"
+	"github.com/shawu21/test/model"
+
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 func UserAddDesire(c *gin.Context) {
 	var desireFormView model.ViewDesire
 
 	if err := c.ShouldBindJSON(&desireFormView); err != nil {
+		log.Errorf("request param error %+v", errors.WithStack(err))
 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "绑定数据模型失败", err))
 		return
 	}
@@ -26,23 +30,26 @@ func UserAddDesire(c *gin.Context) {
 	WishCount := model.GetUserDesireCount(&UserID)
 	// 判断许愿总的次数是否超过上限
 	if WishCount >= common.MaxWishCount {
+		log.Errorf("you have to many desires %+v", errors.New(helper.ErrTooManyDesires))
 		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "许愿次数已达上限", nil))
 		return
 	}
 	// todo: github.com/shawu21/test if it will give auto value
 	desireFormView.Desire.CreatAt = time.Now().In(common.ChinaTime)
-	res := model.AddDesire(&desire)
-	if res != nil {
-		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "添加愿望失败", res))
+	err := model.AddDesire(&desire)
+	if err != nil {
+		log.Errorf("Failed to add desire error is :%+v", err)
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "添加愿望失败", err))
 		return
 	}
-	res = model.UpdateUser(&model.User{
+	err = model.UpdateUser(&model.User{
 		ID:     UserID,
 		Wechat: desireFormView.ViewUser.Wechat,
 		Tel:    desireFormView.ViewUser.Tel,
 	})
-	if res != nil {
-		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "更新用户信息失败", res))
+	// Here is no need to return bad request, because is an additional function
+	if err != nil {
+		log.Errorf("Failed to update user err: %+v", err)
 	}
 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "添加愿望成功", nil))
 }
@@ -50,7 +57,12 @@ func UserAddDesire(c *gin.Context) {
 func UserLightDesire(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
 	DesireId := c.PostForm("desire_id")
-	DesireID, _ := strconv.Atoi(DesireId)
+	DesireID, err := strconv.Atoi(DesireId)
+	if err != nil {
+		log.Errorf("Wrong desireId err:%+v", errors.WithStack(err))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "bad params", nil))
+		return
+	}
 	LightCount := model.GetUserLightCount(&UserID)
 	// 判断点亮次数是否达到上限
 	if LightCount == common.GetCountError {
@@ -72,6 +84,7 @@ func UserLightDesire(c *gin.Context) {
 		return
 	}
 	res := model.LightDesire(&DesireID, &UserID)
+	// TODO: send email
 	if res.Status == common.CodeError {
 		c.JSON(http.StatusInternalServerError, helper.ApiReturn(res.Status, res.Msg, res.Data))
 		return
@@ -110,8 +123,17 @@ func GetUserLightDesires(c *gin.Context) {
 }
 
 func GetUserDesireByType(c *gin.Context) {
-	Type := c.Query("categoires")
-	desireType, _ := strconv.Atoi(Type)
+	Type, ok := c.GetQuery("categoires")
+	if !ok {
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "type is empty", nil))
+		return
+	}
+	desireType, err := strconv.Atoi(Type)
+	if err != nil {
+		log.Errorf("cannot convert type into int err :%+v", err)
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "type is not right", err))
+		return
+	}
 	res, desires := model.GetDesireByCategories(&desireType)
 	if !res {
 		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询失败", nil))
