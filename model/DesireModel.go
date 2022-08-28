@@ -2,9 +2,10 @@ package model
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/shawu21/test/common"
 	"github.com/shawu21/test/helper"
-	"time"
 )
 
 type ViewDesire struct {
@@ -26,7 +27,7 @@ type Desire struct {
 }
 
 func AddDesire(data *Desire) error {
-	err := db.Model(&Desire{}).Omit("light_at").Create(data).Error // 没有.Error会报错
+	err := db.Model(&Desire{}).Omit("light_at").Create(data).Error
 	return err
 }
 
@@ -36,12 +37,12 @@ func LightDesire(DesireID *int, ID *int) helper.ReturnType {
 	if err != nil {
 		return helper.ReturnType{Status: common.CodeError, Msg: "点亮愿望失败,未能查询到该愿望", Data: err.Error()}
 	}
-	if desire.State == common.WishHaveLight {
+	if desire.State == common.DesireHaveLight {
 		return helper.ReturnType{Status: common.CodeError, Msg: "点亮愿望失败，该愿望已经被人抢先点亮了", Data: nil}
 	}
 	// 愿望处于未点亮状态则点亮
-	if desire.State == common.WishNotLight {
-		desire.State = common.WishHaveLight
+	if desire.State == common.DesireNotLight {
+		desire.State = common.DesireHaveLight
 		desire.LightAt = time.Now().In(common.ChinaTime)
 		desire.LightID = *ID
 		err := db.Model(&Desire{}).Updates(&desire).Error
@@ -54,7 +55,7 @@ func LightDesire(DesireID *int, ID *int) helper.ReturnType {
 }
 
 func AchieveDesire(DesireID *int) error {
-	err := db.Model(&Desire{}).Where("id = ?", DesireID).Updates(Desire{State: common.WishHaveRealize, FinishAt: time.Now().In(common.ChinaTime)}).Error
+	err := db.Model(&Desire{}).Where("id = ?", DesireID).Updates(Desire{State: common.DesireHaveRealize, FinishAt: time.Now().In(common.ChinaTime)}).Error
 	return err
 }
 
@@ -62,7 +63,7 @@ func GetDesireByCategories(typ *int) (bool, []*Desire) {
 	var desire []*Desire
 	err := db.
 		Select([]string{"id", "desire", "user_id", "creat_at", "light_at", "state"}).
-		Where("type = ? AND	state = ?", *typ, common.WishNotLight).
+		Where("type = ? AND	state = ?", *typ, common.DesireNotLight).
 		Find(&desire).
 		Error
 	if err != nil {
@@ -72,12 +73,12 @@ func GetDesireByCategories(typ *int) (bool, []*Desire) {
 }
 
 func DeleteDesire(ID *int) error {
-	err := db.Model(&Desire{}).Where("user_id = ?", *ID).Update("state", common.WishHaveDelete).Error
+	err := db.Model(&Desire{}).Where("user_id = ?", *ID).Update("state", common.DesireHaveDelete).Error
 	return err
 }
 
 func CancelLightDesire(DesireID *int) error {
-	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Updates(Desire{State: common.WishNotLight, LightID: -1}).Error
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Updates(Desire{State: common.DesireNotLight, LightID: -1}).Error
 	return err
 }
 
@@ -106,7 +107,7 @@ func GetUserLightCount(ID *int) int64 {
 func GetUserLightMeantimeCount(ID *int) int64 {
 	var count int64
 	err := db.
-		Model(&Desire{}).Where("light_id = ? AND state = ?", *ID, common.WishHaveLight).Count(&count).Error
+		Model(&Desire{}).Where("light_id = ? AND state = ?", *ID, common.DesireHaveLight).Count(&count).Error
 	if err != nil {
 		fmt.Println("get light meantime count error:" + err.Error())
 		return common.GetCountError
@@ -114,8 +115,14 @@ func GetUserLightMeantimeCount(ID *int) int64 {
 	return count
 }
 
-func DesireContentByID(ID *int) (string, error) {
+func DesireContentByID(DesireID *int) (string, error) {
 	var desire Desire
-	err := db.Model(&Desire{}).Where("id = ?").Find(&desire).Error
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Find(&desire).Error
 	return desire.Desire, err
+}
+
+func GetDesire(DesireID *int) (Desire, error) {
+	var desire Desire
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Find(&desire).Error
+	return desire, err
 }
