@@ -29,7 +29,7 @@ func UserAddDesire(c *gin.Context) {
 	// 检查用户当前许愿次数
 	WishCount := model.GetUserDesireCount(&UserID)
 	// 判断许愿总的次数是否超过上限
-	if WishCount >= common.MaxWishCount {
+	if WishCount >= common.MaxDesireCount {
 		log.Errorf("you have to many desires %+v", errors.New(helper.ErrTooManyDesires))
 		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "许愿次数已达上限", nil))
 		return
@@ -66,7 +66,7 @@ func UserLightDesire(c *gin.Context) {
 	LightCount := model.GetUserLightCount(&UserID)
 	// 判断点亮次数是否达到上限
 	if LightCount == common.GetCountError {
-		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询错误", nil))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "查询错误", nil))
 		return
 	}
 	if LightCount >= common.MaxLightCount {
@@ -76,7 +76,7 @@ func UserLightDesire(c *gin.Context) {
 	LightCount = model.GetUserLightMeantimeCount(&UserID)
 	// 判断同时点亮次数是否达到上限
 	if LightCount == common.GetCountError {
-		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询错误", nil))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "查询错误", nil))
 		return
 	}
 	if LightCount >= common.MaxLightSameCount {
@@ -84,9 +84,18 @@ func UserLightDesire(c *gin.Context) {
 		return
 	}
 	res := model.LightDesire(&DesireID, &UserID)
-	// TODO: send email
+	email, err := model.GetEmail(&DesireID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "取消点亮失败", err))
+	}
+	go func() {
+		err := helper.SendMail(email, common.LightDesire, "", "")
+		if err != nil {
+			log.Print(err)
+		}
+	}()
 	if res.Status == common.CodeError {
-		c.JSON(http.StatusInternalServerError, helper.ApiReturn(res.Status, res.Msg, res.Data))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(res.Status, res.Msg, res.Data))
 		return
 	}
 	c.JSON(http.StatusOK, helper.ApiReturn(res.Status, res.Msg, res.Data))
@@ -96,7 +105,7 @@ func GetUserAllDesires(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
 	res, user := model.GetUserAllDesire(&UserID)
 	if !res {
-		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询失败", nil))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "查询失败", nil))
 		return
 	}
 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "查询成功", user))
@@ -106,7 +115,7 @@ func GetUserCreateDesires(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
 	res, desires := model.GetUserCreateDesire(&UserID)
 	if !res {
-		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询失败", nil))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "查询失败", nil))
 		return
 	}
 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "查询成功", desires))
@@ -116,7 +125,7 @@ func GetUserLightDesires(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
 	res, lights := model.GetUserLightDesire(&UserID)
 	if !res {
-		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询失败", nil))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "查询失败", nil))
 		return
 	}
 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "查询成功", lights))
@@ -136,7 +145,7 @@ func GetUserDesireByType(c *gin.Context) {
 	}
 	res, desires := model.GetDesireByCategories(&desireType)
 	if !res {
-		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "查询失败", nil))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "查询失败", nil))
 		return
 	}
 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "查询成功", desires))
@@ -147,7 +156,7 @@ func DeleteUserDesire(c *gin.Context) {
 	desireID, _ := strconv.Atoi(DesireID)
 	res := model.DeleteDesire(&desireID)
 	if res != nil {
-		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeSuccess, "删除失败", res))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeSuccess, "删除失败", res))
 		return
 	}
 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "删除成功", nil))
@@ -173,7 +182,7 @@ func CancelUserLight(c *gin.Context) {
 	}()
 	res := model.CancelLightDesire(&desireID)
 	if res != nil {
-		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "取消点亮失败", res))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "取消点亮失败", res))
 		return
 	}
 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "取消点亮成功", nil))
@@ -184,8 +193,29 @@ func AchieveUserDesire(c *gin.Context) {
 	desireID, _ := strconv.Atoi(DesireID)
 	res := model.AchieveDesire(&desireID)
 	if res != nil {
-		c.JSON(http.StatusInternalServerError, helper.ApiReturn(common.CodeError, "实现失败", res))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "实现失败", res))
 		return
 	}
 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "实现成功", nil))
+}
+
+func GetDesireDetail(c *gin.Context) {
+	var desire *model.ViewDesire
+	var err error
+	DesireID := c.Query("desire_id")
+	desireID, _ := strconv.Atoi(DesireID)
+	desire.Desire, err = model.GetDesire(&desireID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "获取愿望信息失败", err))
+		return
+	}
+	userID, err := model.GetUserID(&desireID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "获取用户失败", err))
+	}
+	desire.ViewUser, err = model.GetViewUser(&userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "获取用户信息失败", err))
+	}
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "获取信息成功", nil))
 }
