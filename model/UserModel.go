@@ -65,14 +65,37 @@ func UserCheck(email string) error {
 }
 
 func GetLightEmail(DesireID *int) (string, error) {
-	var UserID int
+	var userID int
 	var email string
-	err := db.Model(&Desire{}).Where("id = ?", DesireID).Select("light_id").Find(&UserID).Error
+	err := db.Model(&Desire{}).Where("id = ?", DesireID).Select("light_id").Find(&userID).Error
 	if err != nil {
 		return "", err
 	}
-	err = db.Model(&User{}).Where("id = ?", UserID).Select("email").Find(&email).Error
+	err = db.Model(&User{}).Where("id = ?", userID).Select("email").Find(&email).Error
 	return email, err
+}
+
+func GetEmail(DesireID *int) (string, error) {
+	var userID int
+	var email string
+	err := db.Model(&Desire{}).Where("id = ?", DesireID).Select("user_id").Find(&userID).Error
+	if err != nil {
+		return "", err
+	}
+	err = db.Model(&User{}).Where("id = ?", userID).Select("email").Find(&email).Error
+	return email, err
+}
+
+func GetViewUser(UserID *int) (ViewUser, error) {
+	var viewUser ViewUser
+	err := db.Model(&User{}).Where("id = ?", *UserID).Find(&viewUser).Error
+	return viewUser, err
+}
+
+func GetUserID(DesireID *int) (int, error) {
+	var userID int
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Select("user_id").Find(&userID).Error
+	return userID, err
 }
 
 // // 通过UserID查询用户的邮箱是否存在
