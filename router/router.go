@@ -21,6 +21,7 @@ func Routers(r *gin.Engine) {
 			wishes.POST("/add", controller.UserAddDesire)
 			wishes.POST("/light", controller.UserLightDesire)
 			wishes.POST("/achieve", controller.AchieveUserDesire)
+			wishes.GET("/details", controller.GetDesireDetail)
 			wishes.GET("/user/post", controller.GetUserCreateDesires)
 			wishes.GET("/user/light", controller.GetUserLightDesires)
 			wishes.GET("/categories", controller.GetUserDesireByType)
