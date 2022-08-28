@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -14,12 +15,17 @@ import (
 )
 
 func AuthMiddleware(c *gin.Context) {
-	token := c.Request.Header.Get("token")
-	if token == "" {
-		c.JSON(http.StatusForbidden, helper.ApiReturn(common.CodeError, "token不存在", nil))
+	token := c.GetHeader("Authorization")
+	prefix := "Bearer"
+
+	if token == "" || !strings.HasPrefix(token, prefix) {
+		c.JSON(http.StatusUnauthorized, helper.ApiReturn(common.CodeError, "token不存在", nil))
 		c.Abort()
 		return
 	}
+
+	token = token[len(prefix)+1:]
+
 	studentNumber, err := helper.VerifyToken(token)
 	if err != nil {
 		c.JSON(http.StatusForbidden, helper.ApiReturn(common.CodeExpires, "权限不足", nil))
