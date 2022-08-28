@@ -1,0 +1,6 @@
+mailConfig:
+  host: smtp.163.com
+  port: 465
+  from: goproject
+  username: luxuetao0518@163.com
+  password: CLSVNTLRRSTGAZTY
