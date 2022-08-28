@@ -11,21 +11,21 @@ const (
 )
 
 const (
-	WishNotLight    = 0
-	WishHaveLight   = 1
-	WishHaveRealize = 2
-	WishHaveDelete  = 3
+	DesireNotLight    = 0
+	DesireHaveLight   = 1
+	DesireHaveRealize = 2
+	DesireHaveDelete  = 3
 )
 
 const (
-	LightWish int = iota
+	LightDesire int = iota
 	CancelLight
-	DeleteWish
+	DeleteDesire
 	HaveAchieve
 )
 
 const (
-	MaxWishCount      = 5
+	MaxDesireCount    = 5
 	MaxLightCount     = 5
 	MaxLightSameCount = 2
 )
