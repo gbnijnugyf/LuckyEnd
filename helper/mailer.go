@@ -14,7 +14,7 @@ func getHtmlContent(MsgType int, DesireContent string, MessageContent string) st
 	SendTime := fmt.Sprintf("%02d-%02d-%02d %02d:%02d:%02d", time.Now().In(common.ChinaTime).Year(), time.Now().In(common.ChinaTime).Month(), time.Now().In(common.ChinaTime).Day(), time.Now().In(common.ChinaTime).Hour(), time.Now().In(common.ChinaTime).Minute(), time.Now().In(common.ChinaTime).Second())
 	html := ""
 	switch MsgType {
-	case common.LightWish:
+	case common.LightDesire:
 		html = fmt.Sprintf(`<div>
 						<div>
 							叮咚ding~
@@ -69,7 +69,7 @@ func getHtmlContent(MsgType int, DesireContent string, MessageContent string) st
 									<p> 发送于 %s </p>
 								</div>
 							<div>`, DesireContent, SendTime)
-	case common.DeleteWish:
+	case common.DeleteDesire:
 		html = fmt.Sprintf(`<div>
 								<div>
 									叮咚ding~
