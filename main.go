@@ -24,6 +24,7 @@ func init() {
 	// Only log the warning severity or above.
 	//log.SetLevel(log.WarnLevel)
 }
+
 func main() {
 	r := gin.Default()
 	router.Routers(r)
