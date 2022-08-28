@@ -73,7 +73,7 @@ func UserLightDesire(c *gin.Context) {
 		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "点亮愿望次数已达上限", nil))
 		return
 	}
-	LightCount = model.GetUserLightMeantimeCount(&UserID)
+	LightCount = model.GetUserLightMeantimeCount(UserID)
 	// 判断同时点亮次数是否达到上限
 	if LightCount == common.GetCountError {
 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "查询错误", nil))

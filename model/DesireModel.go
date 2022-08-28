@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/pkg/errors"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/shawu21/test/common"
 	"github.com/shawu21/test/helper"
 )
@@ -67,6 +71,7 @@ func GetDesireByCategories(typ *int) (bool, []*Desire) {
 		Find(&desire).
 		Error
 	if err != nil {
+		log.Errorf("Error in get desireBycatgories: %+v", errors.WithStack(err))
 		return false, nil
 	}
 	return true, desire
@@ -104,12 +109,12 @@ func GetUserLightCount(ID *int) int64 {
 	return count
 }
 
-func GetUserLightMeantimeCount(ID *int) int64 {
+func GetUserLightMeantimeCount(ID int) int64 {
 	var count int64
 	err := db.
-		Model(&Desire{}).Where("light_id = ? AND state = ?", *ID, common.DesireHaveLight).Count(&count).Error
+		Model(&Desire{}).Where("light_id = ? AND state = ?", ID, common.DesireHaveLight).Count(&count).Error
 	if err != nil {
-		fmt.Println("get light meantime count error:" + err.Error())
+		log.Errorf("get light meantime count error:%+v", errors.WithStack(err))
 		return common.GetCountError
 	}
 	return count
