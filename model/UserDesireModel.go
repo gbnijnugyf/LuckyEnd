@@ -4,7 +4,12 @@ import (
 	"fmt"
 )
 
-// todo: 使用gorm join联查，将用户信息和愿望信息一起返回
+func GetInfo(DesireID *int) (*Desire, error) {
+	var desire *Desire
+	err := db.Model(&Desire{}).Joins("user").Where("id = ?", *DesireID).Find(desire).Error
+	return desire, err
+}
+
 // 查询用户的所有愿望，包括投递和点亮的愿望
 func GetUserAllDesire(UserID *int) (bool, User) {
 	var user User

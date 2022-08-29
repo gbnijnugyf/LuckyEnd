@@ -18,16 +18,17 @@ type ViewDesire struct {
 }
 
 type Desire struct {
-	ID       int       `json:"desire_id" gorm:"id" uri:"desire_id" form:"desire_id"`
-	Desire   string    `json:"desire" gorm:"desire"`
-	LightAt  time.Time `json:"light_at,omitempty" gorm:"light_at"`
-	CreatAt  time.Time `json:"creat_at" gorm:"creat_at"`
-	FinishAt time.Time `json:"finish_at" gorm:"finish_at"`
-	State    int       `json:"state" gorm:"state"`
-	Type     int       `json:"type" gorm:"type" form:"categories"`
-	School   int       `json:"school" gorm:"school"`
-	LightID  int       `gorm:"light_id"` //点亮人外键
-	UserID   int       `gorm:"user_id"`  //投递者外键
+	ID        int       `json:"desire_id" gorm:"id" uri:"desire_id" form:"desire_id"`
+	Desire    string    `json:"desire" gorm:"desire"`
+	LightAt   time.Time `json:"light_at,omitempty" gorm:"light_at"`
+	CreatAt   time.Time `json:"creat_at" gorm:"creat_at"`
+	FinishAt  time.Time `json:"finish_at" gorm:"finish_at"`
+	State     int       `json:"state" gorm:"state"`
+	Type      int       `json:"type" gorm:"type" form:"categories"`
+	School    int       `json:"school" gorm:"school"`
+	LightID   int       `gorm:"light_id"` //点亮人外键
+	UserID    int       `gorm:"user_id"`  //投递者外键
+	LightUser ViewUser  `gorm:"ForeginKey:LightID;AssociationForeignKey:ID"`
 }
 
 func AddDesire(data *Desire) error {
