@@ -73,7 +73,7 @@ func UserLightDesire(c *gin.Context) {
 		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "点亮愿望次数已达上限", nil))
 		return
 	}
-	LightCount = model.GetUserLightMeantimeCount(&UserID)
+	LightCount = model.GetUserLightMeantimeCount(UserID)
 	// 判断同时点亮次数是否达到上限
 	if LightCount == common.GetCountError {
 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "查询错误", nil))
@@ -199,23 +199,34 @@ func AchieveUserDesire(c *gin.Context) {
 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "实现成功", nil))
 }
 
-func GetDesireDetail(c *gin.Context) {
-	var desire *model.ViewDesire
-	var err error
+// func GetDesireDetail(c *gin.Context) {
+// 	var desire *model.ViewDesire
+// 	var err error
+// 	DesireID := c.Query("desire_id")
+// 	desireID, _ := strconv.Atoi(DesireID)
+// 	desire.Desire, err = model.GetDesire(&desireID)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "获取愿望信息失败", err))
+// 		return
+// 	}
+// 	userID, err := model.GetUserID(&desireID)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "获取用户失败", err))
+// 	}
+// 	desire.ViewUser, err = model.GetViewUser(&userID)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "获取用户信息失败", err))
+// 	}
+// 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "获取信息成功", nil))
+// }
+
+func DesireDetail(c *gin.Context) {
 	DesireID := c.Query("desire_id")
 	desireID, _ := strconv.Atoi(DesireID)
-	desire.Desire, err = model.GetDesire(&desireID)
+	desire, err := model.GetInfo(&desireID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "获取愿望信息失败", err))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "获取信息失败", err))
 		return
 	}
-	userID, err := model.GetUserID(&desireID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "获取用户失败", err))
-	}
-	desire.ViewUser, err = model.GetViewUser(&userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "获取用户信息失败", err))
-	}
-	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "获取信息成功", nil))
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "获取信息成功", *desire))
 }

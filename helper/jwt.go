@@ -3,8 +3,9 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"github.com/shawu21/test/common"
 	"time"
+
+	"github.com/shawu21/test/common"
 
 	"github.com/golang-jwt/jwt/v4"
 )

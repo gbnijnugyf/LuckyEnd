@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/pkg/errors"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/shawu21/test/common"
 	"github.com/shawu21/test/helper"
 )
@@ -14,16 +18,17 @@ type ViewDesire struct {
 }
 
 type Desire struct {
-	ID       int       `json:"desire_id" gorm:"id" uri:"desire_id" form:"desire_id"`
-	Desire   string    `json:"desire" gorm:"desire"`
-	LightAt  time.Time `json:"light_at,omitempty" gorm:"light_at"`
-	CreatAt  time.Time `json:"creat_at" gorm:"creat_at"`
-	FinishAt time.Time `json:"finish_at" gorm:"finish_at"`
-	State    int       `json:"state" gorm:"state"`
-	Type     int       `json:"type" gorm:"type" form:"categories"`
-	School   int       `json:"school" gorm:"school"`
-	LightID  int       `gorm:"light_id"` //点亮人外键
-	UserID   int       `gorm:"user_id"`  //投递者外键
+	ID        int       `json:"desire_id" gorm:"id" uri:"desire_id" form:"desire_id"`
+	Desire    string    `json:"desire" gorm:"desire"`
+	LightAt   time.Time `json:"light_at,omitempty" gorm:"light_at"`
+	CreatAt   time.Time `json:"creat_at" gorm:"creat_at"`
+	FinishAt  time.Time `json:"finish_at" gorm:"finish_at"`
+	State     int       `json:"state" gorm:"state"`
+	Type      int       `json:"type" gorm:"type" form:"categories"`
+	School    int       `json:"school" gorm:"school"`
+	LightID   int       `gorm:"light_id"` //点亮人外键
+	UserID    int       `gorm:"user_id"`  //投递者外键
+	LightUser ViewUser  `gorm:"ForeginKey:LightID;AssociationForeignKey:ID"`
 }
 
 func AddDesire(data *Desire) error {
@@ -67,6 +72,7 @@ func GetDesireByCategories(typ *int) (bool, []*Desire) {
 		Find(&desire).
 		Error
 	if err != nil {
+		log.Errorf("Error in get desireBycatgories: %+v", errors.WithStack(err))
 		return false, nil
 	}
 	return true, desire
@@ -104,12 +110,12 @@ func GetUserLightCount(ID *int) int64 {
 	return count
 }
 
-func GetUserLightMeantimeCount(ID *int) int64 {
+func GetUserLightMeantimeCount(ID int) int64 {
 	var count int64
 	err := db.
-		Model(&Desire{}).Where("light_id = ? AND state = ?", *ID, common.DesireHaveLight).Count(&count).Error
+		Model(&Desire{}).Where("light_id = ? AND state = ?", ID, common.DesireHaveLight).Count(&count).Error
 	if err != nil {
-		fmt.Println("get light meantime count error:" + err.Error())
+		log.Errorf("get light meantime count error:%+v", errors.WithStack(err))
 		return common.GetCountError
 	}
 	return count

@@ -4,6 +4,12 @@ import (
 	"fmt"
 )
 
+func GetInfo(DesireID *int) (*Desire, error) {
+	var desire *Desire
+	err := db.Model(&Desire{}).Joins("user").Where("id = ?", *DesireID).Find(desire).Error
+	return desire, err
+}
+
 // 查询用户的所有愿望，包括投递和点亮的愿望
 func GetUserAllDesire(UserID *int) (bool, User) {
 	var user User
