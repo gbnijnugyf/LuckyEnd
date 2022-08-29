@@ -1,0 +1,9 @@
+dbConfig:
+  username: "root"
+  password: ""
+  hostname: "127.0.0.1"
+  port: "3306"
+  dbname: "program"
+  charset: "utf8mb4"
+  parsetime: "True"
+  local: "Local"

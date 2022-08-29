@@ -18,7 +18,6 @@ type DbConfig struct {
 	Local      string
 }
 
-
 func GetDbConfig() DbConfig {
 	var dbConfig DbConfig
 	yamlFile, err := os.ReadFile("../conf/dbConfig.yaml")
