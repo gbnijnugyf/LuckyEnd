@@ -1,7 +1,4 @@
 dbConfig:
-<<<<<<< HEAD
-  
-=======
   username: "root"
   password: ""
   hostname: "127.0.0.1"
@@ -10,4 +7,3 @@ dbConfig:
   charset: "utf8mb4"
   parsetime: "True"
   local: "Local"
->>>>>>> dev
