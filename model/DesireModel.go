@@ -13,32 +13,31 @@ import (
 )
 
 type ViewDesire struct {
-	Desire   Desire   `json:"desire"`
+	Desire   Desire   `json:"view_desire"`
 	ViewUser ViewUser `json:"view_user"`
 }
 
 type Desire struct {
-	ID        int       `json:"desire_id" gorm:"id" uri:"desire_id" form:"desire_id"`
-	Desire    string    `json:"desire" gorm:"desire"`
-	LightAt   time.Time `json:"light_at,omitempty" gorm:"light_at"`
-	CreatAt   time.Time `json:"creat_at" gorm:"creat_at"`
-	FinishAt  time.Time `json:"finish_at" gorm:"finish_at"`
-	State     int       `json:"state" gorm:"state"`
-	Type      int       `json:"type" gorm:"type" form:"categories"`
-	School    int       `json:"school" gorm:"school"`
-	LightID   int       `gorm:"light_id"` //点亮人外键
-	UserID    int       `gorm:"user_id"`  //投递者外键
-	LightUser ViewUser  `gorm:"ForeginKey:LightID;AssociationForeignKey:ID"`
+	ID         int       `json:"desire_id" gorm:"id;primary_key;auto_increment"`
+	Desire     string    `json:"desire" gorm:"desire"`
+	LightedAt  time.Time `json:"lighted_at,omitempty" gorm:"lighted_at,omitempty"`
+	CreatedAt  time.Time `json:"created_at" gorm:"created_at,omitempty"`
+	FinishedAt time.Time `json:"finished_at" gorm:"finished_at,omitempty"`
+	State      int       `json:"state" gorm:"state"`
+	Type       int       `json:"type" gorm:"type,omitempty"`
+	School     int       `json:"school" gorm:"school,omitempty"`
+	LightID    int       `json:"light_id" gorm:"light_id,omitempty"` //点亮人外键
+	UserID     int       `json:"user_id" gorm:"user_id,omitempty"`   //投递者外键
 }
 
 func AddDesire(data *Desire) error {
-	err := db.Model(&Desire{}).Omit("light_at").Create(data).Error
+	err := db.Model(&Desire{}).Omit("lighted_at", "finished_at").Create(data).Error
 	return err
 }
 
 func LightDesire(DesireID *int, ID *int) helper.ReturnType {
-	var desire Desire
-	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Find(&desire).Error
+	desire := &Desire{}
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Find(desire).Error
 	if err != nil {
 		return helper.ReturnType{Status: common.CodeError, Msg: "点亮愿望失败,未能查询到该愿望", Data: err.Error()}
 	}
@@ -48,9 +47,9 @@ func LightDesire(DesireID *int, ID *int) helper.ReturnType {
 	// 愿望处于未点亮状态则点亮
 	if desire.State == common.DesireNotLight {
 		desire.State = common.DesireHaveLight
-		desire.LightAt = time.Now().In(common.ChinaTime)
+		desire.LightedAt = time.Now().In(common.ChinaTime)
 		desire.LightID = *ID
-		err := db.Model(&Desire{}).Updates(&desire).Error
+		err := db.Model(&Desire{}).Where("id = ?", *DesireID).Updates(desire).Error
 		if err != nil {
 			return helper.ReturnType{Status: common.CodeError, Msg: "点亮愿望失败，数据库发生错误", Data: err.Error()}
 		}
@@ -60,22 +59,19 @@ func LightDesire(DesireID *int, ID *int) helper.ReturnType {
 }
 
 func AchieveDesire(DesireID *int) error {
-	err := db.Model(&Desire{}).Where("id = ?", DesireID).Updates(Desire{State: common.DesireHaveRealize, FinishAt: time.Now().In(common.ChinaTime)}).Error
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Updates(Desire{State: common.DesireHaveRealize, FinishedAt: time.Now().In(common.ChinaTime)}).Error
 	return err
 }
 
-func GetDesireByCategories(typ *int) (bool, []*Desire) {
+// todo: need name
+func GetDesireByCategories(typ *int) ([]*Desire, error) {
 	var desire []*Desire
 	err := db.
-		Select([]string{"id", "desire", "user_id", "creat_at", "light_at", "state"}).
+		Select([]string{"id", "desire", "user_id", "created_at", "lighted_at", "state"}).
 		Where("type = ? AND	state = ?", *typ, common.DesireNotLight).
 		Find(&desire).
 		Error
-	if err != nil {
-		log.Errorf("Error in get desireBycatgories: %+v", errors.WithStack(err))
-		return false, nil
-	}
-	return true, desire
+	return desire, err
 }
 
 func DeleteDesire(ID *int) error {
@@ -122,13 +118,25 @@ func GetUserLightMeantimeCount(ID int) int64 {
 }
 
 func DesireContentByID(DesireID *int) (string, error) {
-	var desire Desire
-	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Find(&desire).Error
+	desire := &Desire{}
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Find(desire).Error
 	return desire.Desire, err
 }
 
-func GetDesire(DesireID *int) (Desire, error) {
-	var desire Desire
-	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Find(&desire).Error
+func GetUserID(DesireID *int) (int, error) {
+	desire := &Desire{}
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Select("user_id").Find(desire).Error
+	return desire.UserID, err
+}
+
+func GetLightID(DesireID *int) (int, error) {
+	desire := &Desire{}
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Select("light_id").Find(desire).Error
+	return desire.LightID, err
+}
+
+func GetInfo(DesireID *int) (*Desire, error) {
+	desire := &Desire{}
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Find(desire).Error
 	return desire, err
 }
