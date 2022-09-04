@@ -17,7 +17,7 @@ var loginUrl = "https://dev-auth.itoken.team/Auth/Login"
 var infoUrl = "https://dev-auth.itoken.team/Profile"
 
 func GetInfo(token string) (*model.User, error) {
-	var user *model.User
+	user := &model.User{}
 	req, _ := http.NewRequest(http.MethodGet, infoUrl, nil)
 	accessToken := fmt.Sprintf("Bearer %s", token)
 	req.Header.Add("Authorization", accessToken)
@@ -26,7 +26,6 @@ func GetInfo(token string) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -41,8 +40,8 @@ func GetInfo(token string) (*model.User, error) {
 	user.Email = res["email"].(string)
 	user.Tel = res["phone"].(string)
 	user.QQ = res["qq"].(string)
-	user.Gender = res["gender"].(int)
-	user.IdcardNumber = res["studentNumber"].(string)
+	user.Gender = int(res["gender"].(float64)) // interface无法直接转为int类型
+	user.IdcardNumber = res["id"].(string)
 	return user, nil
 }
 
