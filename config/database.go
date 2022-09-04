@@ -8,19 +8,19 @@ import (
 )
 
 type DbConfig struct {
-	Username   string
-	Password   string
-	Hostname   string
-	Port       string
-	Dbname     string
-	Charset    string
-	PareseTime string
-	Local      string
+	Username   string `yaml:"username"`
+	Password   string `yaml:"password"`
+	Hostname   string `yaml:"hostname"`
+	Port       string `yaml:"port"`
+	Dbname     string `yaml:"dbname"`
+	Charset    string `yaml:"charset"`
+	PareseTime string `yaml:"paresetime"`
+	Local      string `yaml:"local"`
 }
 
 func GetDbConfig() DbConfig {
 	var dbConfig DbConfig
-	yamlFile, err := os.ReadFile("../conf/dbConfig.yaml")
+	yamlFile, err := os.ReadFile("D:/golang/conf/dbConfig.yaml")
 	if err != nil {
 		fmt.Println("read file error:" + err.Error())
 	}
