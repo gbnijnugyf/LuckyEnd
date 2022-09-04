@@ -8,22 +8,21 @@ import (
 )
 
 func Routers(r *gin.Engine) {
-	r.POST("api/whutlogin", controller.Login)
+	r.POST("api/whutlogin", controller.Login) 
 
 	api := r.Group("api/")
 	api.Use(middleware.AuthMiddleware)
 	{
-		api.GET("/user/info/wishman", controller.GetUserInfo)
-		api.GET("/user/info/lightman", controller.GetUserInfo)
+		api.GET("/user/info", controller.GetUserInfo) 
 
 		wishes := api.Group("/desires")
 		{
-			wishes.POST("/add", controller.UserAddDesire)
-			wishes.POST("/light", controller.UserLightDesire)
-			wishes.POST("/achieve", controller.AchieveUserDesire)
-			wishes.GET("/details", controller.DesireDetail)
-			wishes.GET("/user/post", controller.GetUserCreateDesires)
-			wishes.GET("/user/light", controller.GetUserLightDesires)
+			wishes.POST("/add", controller.UserAddDesire) 
+			wishes.POST("/light", controller.UserLightDesire) 
+			wishes.POST("/achieve", controller.AchieveUserDesire) 
+			wishes.GET("/details", controller.DesireDetail)       
+			wishes.GET("/user/post", controller.GetUserCreateDesires)	
+			wishes.GET("/user/light", controller.GetUserLightDesires)	
 			wishes.GET("/categories", controller.GetUserDesireByType)
 			wishes.DELETE("/delete", controller.DeleteUserDesire)
 			wishes.POST("/giveup", controller.CancelUserLight)
