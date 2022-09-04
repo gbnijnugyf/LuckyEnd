@@ -1,9 +1,8 @@
-dbConfig:
-  username: "root"
-  password: ""
-  hostname: "127.0.0.1"
-  port: "3306"
-  dbname: "program"
-  charset: "utf8mb4"
-  parsetime: "True"
-  local: "Local"
+username: "root"
+password: "237156"
+hostname: "127.0.0.1"
+port: 3306
+dbname: "lucky"
+charset: "utf8mb4"
+paresetime: "True"
+local: "Local"
