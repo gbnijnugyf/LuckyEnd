@@ -99,7 +99,7 @@ func SendMail(EmailAddress string, MsgType int, DesireContent string, MessageCon
 	message := gomail.NewMessage()
 	message.SetAddressHeader("From", mailConfig.From, mailConfig.FromName)
 	message.SetHeader("To", EmailAddress)
-	message.SetHeader("Subject", "[小幸运2021]邮件通知")
+	message.SetHeader("Subject", "[小幸运2022]邮件通知")
 	message.SetBody("text/html", html)
 
 	dia := gomail.NewDialer(mailConfig.Host, mailConfig.Port, mailConfig.Username, mailConfig.Password)

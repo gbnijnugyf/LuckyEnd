@@ -2,7 +2,6 @@ package helper
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/shawu21/test/common"
@@ -41,7 +40,6 @@ func VerifyToken(token string) (string, error) {
 		return "", err
 	}
 	claims, ok := tempToken.Claims.(*JwtClaim)
-	fmt.Println(claims)
 	if !ok {
 		return "", errors.New("claims error")
 	}
