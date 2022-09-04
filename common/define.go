@@ -1,6 +1,7 @@
 package common
 
 import (
+	"log"
 	"time"
 )
 
@@ -27,10 +28,12 @@ const (
 const (
 	MaxDesireCount    = 5
 	MaxLightCount     = 5
-	MaxLightSameCount = 2
+	MaxLightSameCount = 5 //测试todo
 )
 
 const GetCountError = -1
+
+const CheckSelf = -1
 
 var ChinaTime *time.Location
 
@@ -40,3 +43,11 @@ const (
 	Male Gender = iota + 1
 	FeMale
 )
+
+func init() {
+	var err error
+	ChinaTime, err = time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		log.Panicln(err)
+	}
+}
