@@ -13,14 +13,14 @@ var MySqlDbErr error
 
 func init() {
 	dbConfig := config.GetDbConfig()
-	dbDSN := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=%s&parseTime=%s&loc=%s",
+	dbDSN := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=%s&parseTime=%v&loc=%s",
 		dbConfig.Username,
 		dbConfig.Password,
 		dbConfig.Hostname,
 		dbConfig.Port,
 		dbConfig.Dbname,
 		dbConfig.Charset,
-		dbConfig.PareseTime,
+		dbConfig.ParseTime,
 		dbConfig.Local,
 	)
 	MySqlDb, MySqlDbErr = gorm.Open(mysql.Open(dbDSN), &gorm.Config{
