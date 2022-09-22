@@ -1,6 +1,6 @@
-host: "smtp.163.com"
+host: "smtp.feishu.cn"
 port: 465
-from: "luxuetao0518@163.com"
-fromname: "小幸运测试"
-username: "luxuetao0518@163.com"
-password: "JAMZCIWKEUQQLKMC"
+from: "UNI@itoken.team"
+fromName: "小幸运"
+username: "UNI@itoken.team"
+password: "teTxnl1djwZZdVo2"
