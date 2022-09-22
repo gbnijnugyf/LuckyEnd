@@ -28,12 +28,14 @@ const (
 const (
 	MaxDesireCount    = 5
 	MaxLightCount     = 5
-	MaxLightSameCount = 5 //测试todo
+	MaxLightSameCount = 2
 )
 
 const GetCountError = -1
 
 const CheckSelf = -1
+
+const Whut = 1
 
 var ChinaTime *time.Location
 
