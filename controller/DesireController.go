@@ -58,6 +58,7 @@ func UserAddDesire(c *gin.Context) {
 func UserLightDesire(c *gin.Context) {
 	lightFromView := &model.ViewLight{}
 	if err := c.ShouldBindJSON(lightFromView); err != nil {
+		log.Errorf("request param error %+v", errors.WithStack(err))
 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "数据模型绑定错误", err))
 		return
 	}
@@ -146,7 +147,6 @@ func GetUserLightDesires(c *gin.Context) {
 	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "查询成功", lights))
 }
 
-// todo
 func GetUserDesireByType(c *gin.Context) {
 	Type, ok := c.GetQuery("type")
 	if !ok {
@@ -213,6 +213,7 @@ func CancelUserLight(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
 	json := make(map[string]interface{})
 	if err := c.ShouldBindJSON(&json); err != nil {
+		log.Errorf("request param error %+v", errors.WithStack(err))
 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "绑定数据失败", err))
 		return
 	}
@@ -255,6 +256,7 @@ func AchieveUserDesire(c *gin.Context) {
 	UserID := c.MustGet("user_id").(int)
 	json := make(map[string]interface{})
 	if err := c.ShouldBindJSON(&json); err != nil {
+		log.Errorf("request param error %+v", errors.WithStack(err))
 		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "绑定数据失败", err))
 		return
 	}
@@ -270,7 +272,7 @@ func AchieveUserDesire(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "邮件发送失败", err))
 			return
 		}
-		name, err := model.GetName(&UserID)
+		name, err := model.GetName(UserID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "邮件发送失败", err))
 			return
@@ -313,6 +315,7 @@ func DesireDetail(c *gin.Context) {
 			Email:  user.Email,
 			Wechat: user.Wechat,
 			Tel:    user.Tel,
+			School: user.School,
 		},
 	}))
 }
