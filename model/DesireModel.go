@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -11,6 +10,11 @@ import (
 	"github.com/shawu21/test/common"
 	"github.com/shawu21/test/helper"
 )
+
+type Desires struct {
+	Desire Desire `json:"view_desire"`
+	User   Users  `json:"view_user"`
+}
 
 type ViewDesire struct {
 	Desire   Desire   `json:"view_desire"`
@@ -25,9 +29,8 @@ type Desire struct {
 	FinishedAt time.Time `json:"finished_at" gorm:"finished_at,omitempty"`
 	State      int       `json:"state" gorm:"state"`
 	Type       int       `json:"type" gorm:"type,omitempty"`
-	School     int       `json:"school" gorm:"school,omitempty"`
-	LightID    int       `json:"light_id" gorm:"light_id,omitempty"` //点亮人外键
-	UserID     int       `json:"user_id" gorm:"user_id,omitempty"`   //投递者外键
+	LightID int `json:"light_id" gorm:"light_id,omitempty"` //点亮人外键
+	UserID  int `json:"user_id" gorm:"user_id,omitempty"`   //投递者外键
 }
 
 func AddDesire(data *Desire) error {
@@ -63,15 +66,20 @@ func AchieveDesire(DesireID *int) error {
 	return err
 }
 
-// todo: need name
-func GetDesireByCategories(typ *int) ([]*Desire, error) {
+func GetDesireByCategories(typ *int) ([]Desires, error) {
 	var desire []*Desire
+	desires := make([]Desires, 0)
+	des := Desires{}
 	err := db.
-		Select([]string{"id", "desire", "user_id", "created_at", "lighted_at", "state"}).
 		Where("type = ? AND	state = ?", *typ, common.DesireNotLight).
 		Find(&desire).
 		Error
-	return desire, err
+	for _, v := range desire {
+		des.Desire = *v
+		des.User, _ = GetUser(v.UserID)
+		desires = append(desires, des)
+	}
+	return desires, err
 }
 
 func DeleteDesire(ID *int) error {
@@ -89,7 +97,7 @@ func GetUserDesireCount(ID *int) int64 {
 	err := db.
 		Model(&Desire{}).Where("user_id = ?", *ID).Count(&count).Error
 	if err != nil {
-		fmt.Println("get desire count error:" + err.Error())
+		log.Errorf("get desire count error + %+v", err)
 		return common.GetCountError
 	}
 	return count
@@ -100,7 +108,7 @@ func GetUserLightCount(ID *int) int64 {
 	err := db.
 		Model(&Desire{}).Where("light_id = ?", *ID).Count(&count).Error
 	if err != nil {
-		fmt.Println("get light count error:" + err.Error())
+		log.Errorf("get light count error + %+v", err)
 		return common.GetCountError
 	}
 	return count

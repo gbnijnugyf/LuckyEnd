@@ -1,10 +1,8 @@
 package model
 
-// todo: 更改外键
 type User struct {
 	ID           int      `json:"id" gorm:"id;primary_key;auto_increment"`
 	IdcardNumber string   `json:"idcard_number" gorm:"student_number,omitempty"`
-	Password     string   `json:"password" gorm:"password,omitempty"`
 	School       int      `json:"school" gorm:"school,omitempty"`
 	Wechat       string   `json:"wechat" gorm:"wechat,omitempty"`
 	QQ           string   `json:"qq" gorm:"qq,omitempty"`
@@ -13,8 +11,8 @@ type User struct {
 	Tel          string   `json:"tel" gorm:"tel,omitempty"`
 	Email        string   `json:"email" gorm:"email,omitempty"`
 	Major        string   `json:"major" gorm:"major,omitempty"`
-	Desires      []Desire `gorm:"foreignkey:UserID"`  //建立外键，为结构体Desire中的UserID
-	Lights       []Desire `gorm:"foreignkey:LightID"` //建立外键，为结构体Desire中的UserLight
+	Desires      []Desire `gorm:"foreignKey:UserID"`  //建立外键，为结构体Desire中的UserID
+	Lights       []Desire `gorm:"foreignKey:LightID"` //建立外键，为结构体Desire中的UserLight
 }
 
 type ViewUser struct {
@@ -23,6 +21,7 @@ type ViewUser struct {
 	Email  string `json:"email"`
 	Wechat string `json:"wechat"`
 	Tel    string `json:"tel"`
+	School int    `json:"school"`
 }
 
 type ViewLight struct {
@@ -36,6 +35,11 @@ type ViewLight struct {
 type UserLogin struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type Users struct {
+	Name   string `json:"name"`
+	School int    `json:"school"`
 }
 
 func CreateUser(user *User) error {
@@ -95,8 +99,14 @@ func GetEmail(DesireID *int) (string, error) {
 	return user.Email, err
 }
 
-func GetName(UserID *int) (string, error) {
+func GetName(UserID int) (string, error) {
 	user := &User{}
-	err := db.Model(&User{}).Where("id = ?", *UserID).Select("name").Find(user).Error
+	err := db.Model(&User{}).Where("id = ?", UserID).Select("name").Find(user).Error
 	return user.Name, err
+}
+
+func GetUser(UserID int) (Users, error) {
+	user := &Users{}
+	err := db.Model(&User{}).Where("id = ?", UserID).Find(user).Error
+	return *user, err
 }
