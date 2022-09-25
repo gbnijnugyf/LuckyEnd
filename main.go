@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/shawu21/test/router"
-
 	log "github.com/sirupsen/logrus"
 )
 

@@ -13,8 +13,7 @@ func Routers(r *gin.Engine) {
 	api := r.Group("api/")
 	api.Use(middleware.AuthMiddleware)
 	{
-		api.GET("/user/info/wishman", controller.GetUserInfo)
-		api.GET("/user/info/lightman", controller.GetUserInfo)
+		api.GET("/user/info", controller.GetUserInfo)
 
 		wishes := api.Group("/desires")
 		{
@@ -29,6 +28,5 @@ func Routers(r *gin.Engine) {
 			wishes.POST("/giveup", controller.CancelUserLight)
 		}
 
-		api.GET("")
 	}
 }

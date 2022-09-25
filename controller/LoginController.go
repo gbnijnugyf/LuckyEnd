@@ -14,11 +14,10 @@ import (
 )
 
 func Login(c *gin.Context) {
-	var userLogin *model.UserLogin
-	var user *model.User
+	userLogin := &model.UserLogin{}
 	if err := c.ShouldBindJSON(userLogin); err != nil {
 		log.Errorf("Invalid Param %+v", errors.WithStack(err))
-		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "数据绑定失败", nil))
+		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "数据绑定失败", err))
 		return
 	}
 	accessToken, err := service.SendForm(userLogin.Email, userLogin.Password)
@@ -31,7 +30,8 @@ func Login(c *gin.Context) {
 		return
 	}
 	//TODO data may be delay from auth when user update his data in auth
-	if err := model.UserCheck(userLogin.Email); err != nil {
+	user, err := model.UserCheck(userLogin.Email)
+	if err != nil {
 		user, err = service.GetInfo(accessToken)
 		if err != nil {
 			c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "获取用户信息失败", nil))
@@ -48,5 +48,5 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "创建token失败", nil))
 		return
 	}
-	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "创建用户成功", token))
+	c.JSON(http.StatusOK, helper.ApiReturn(common.CodeSuccess, "登录成功", token))
 }

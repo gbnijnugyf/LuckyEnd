@@ -1,9 +1,8 @@
 package model
 
 type User struct {
-	ID           int      `json:"id" gorm:"id"`
-	IdcardNumber string   `json:"idcard_number" gorm:"column:student_number,omitempty"`
-	Password     string   `json:"password" gorm:"password,omitempty"`
+	ID           int      `json:"id" gorm:"id;primary_key;auto_increment"`
+	IdcardNumber string   `json:"idcard_number" gorm:"student_number,omitempty"`
 	School       int      `json:"school" gorm:"school,omitempty"`
 	Wechat       string   `json:"wechat" gorm:"wechat,omitempty"`
 	QQ           string   `json:"qq" gorm:"qq,omitempty"`
@@ -12,8 +11,8 @@ type User struct {
 	Tel          string   `json:"tel" gorm:"tel,omitempty"`
 	Email        string   `json:"email" gorm:"email,omitempty"`
 	Major        string   `json:"major" gorm:"major,omitempty"`
-	Desires      []Desire `gorm:"foreignkey:UserID"`  //建立外键，为结构体Desire中的UserID
-	Lights       []Desire `gorm:"foreignkey:LightID"` //建立外键，为结构体Desire中的LightID
+	Desires      []Desire `gorm:"foreignKey:UserID"`  //建立外键，为结构体Desire中的UserID
+	Lights       []Desire `gorm:"foreignKey:LightID"` //建立外键，为结构体Desire中的UserLight
 }
 
 type ViewUser struct {
@@ -22,11 +21,25 @@ type ViewUser struct {
 	Email  string `json:"email"`
 	Wechat string `json:"wechat"`
 	Tel    string `json:"tel"`
+	School int    `json:"school"`
+}
+
+type ViewLight struct {
+	DesireID int    `json:"desire_id"`
+	Name     string `json:"name"`
+	QQ       string `json:"qq"`
+	Wechat   string `json:"wechat"`
+	Tel      string `json:"tel"`
 }
 
 type UserLogin struct {
-	Email    string
-	Password string
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type Users struct {
+	Name   string `json:"name"`
+	School int    `json:"school"`
 }
 
 func CreateUser(user *User) error {
@@ -35,13 +48,13 @@ func CreateUser(user *User) error {
 }
 
 func UpdateUser(user *User) error {
-	err := db.Model(&User{}).Updates(user).Error
+	err := db.Model(&User{}).Where("id = ?", user.ID).Updates(user).Error
 	return err
 }
 
 func GetUserIDByStudentNumber(studentNumber string) (int, error) {
-	var user User
-	err := db.Model(&User{}).Where("student_number = ?", studentNumber).First(&user).Error
+	user := &User{}
+	err := db.Model(&User{}).Where("idcard_number = ?", studentNumber).First(user).Error
 	if err != nil {
 		return -1, err
 	}
@@ -49,7 +62,7 @@ func GetUserIDByStudentNumber(studentNumber string) (int, error) {
 }
 
 func GetUserInfo(UserID int) (*User, error) {
-	var user *User
+	user := &User{}
 	err := db.Model(&User{}).Where("id = ?", UserID).First(user).Error
 	if err != nil {
 		return nil, err
@@ -58,62 +71,42 @@ func GetUserInfo(UserID int) (*User, error) {
 }
 
 // UserCheck check user if exists
-func UserCheck(email string) error {
-	var user *User
+func UserCheck(email string) (*User, error) {
+	user := &User{}
 	err := db.Model(&User{}).Where("email = ?", email).First(user).Error
-	return err
+	return user, err
 }
 
 func GetLightEmail(DesireID *int) (string, error) {
-	var userID int
-	var email string
-	err := db.Model(&Desire{}).Where("id = ?", DesireID).Select("light_id").Find(&userID).Error
+	desire := &Desire{}
+	user := &User{}
+	err := db.Model(&Desire{}).Where("id = ?", DesireID).Select("light_id").Find(desire).Error
 	if err != nil {
 		return "", err
 	}
-	err = db.Model(&User{}).Where("id = ?", userID).Select("email").Find(&email).Error
-	return email, err
+	err = db.Model(&User{}).Where("id = ?", desire.LightID).Select("email").Find(user).Error
+	return user.Email, err
 }
 
 func GetEmail(DesireID *int) (string, error) {
-	var userID int
-	var email string
-	err := db.Model(&Desire{}).Where("id = ?", DesireID).Select("user_id").Find(&userID).Error
+	desire := &Desire{}
+	user := &User{}
+	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Select("user_id").Find(desire).Error
 	if err != nil {
 		return "", err
 	}
-	err = db.Model(&User{}).Where("id = ?", userID).Select("email").Find(&email).Error
-	return email, err
+	err = db.Model(&User{}).Where("id = ?", desire.UserID).Select("email").Find(user).Error
+	return user.Email, err
 }
 
-func GetViewUser(UserID *int) (ViewUser, error) {
-	var viewUser ViewUser
-	err := db.Model(&User{}).Where("id = ?", *UserID).Find(&viewUser).Error
-	return viewUser, err
+func GetName(UserID int) (string, error) {
+	user := &User{}
+	err := db.Model(&User{}).Where("id = ?", UserID).Select("name").Find(user).Error
+	return user.Name, err
 }
 
-func GetUserID(DesireID *int) (int, error) {
-	var userID int
-	err := db.Model(&Desire{}).Where("id = ?", *DesireID).Select("user_id").Find(&userID).Error
-	return userID, err
+func GetUser(UserID int) (Users, error) {
+	user := &Users{}
+	err := db.Model(&User{}).Where("id = ?", UserID).Find(user).Error
+	return *user, err
 }
-
-// // 通过UserID查询用户的邮箱是否存在
-// func GetUserEmailByUserID(UserID int) string {
-// 	var user User
-// 	err := db.Model(&User{}).Where("id = ?", UserID).Find(&user).Error
-// 	if err != nil {
-// 		return ""
-// 	}
-// 	return user.Email
-// }
-
-// // 绑定邮箱
-// func BindEmail(data User) helper.ReturnType {
-// 	err := db.Model(&User{}).Where("student_number = ?", data.IdcardNumber).Updates(&data).Error
-// 	if err != nil {
-// 		return helper.ReturnType{Status: common.CodeError, Msg: "绑定邮箱失败", Data: err.Error()}
-// 	} else {
-// 		return helper.ReturnType{Status: common.CodeSuccess, Msg: "绑定邮箱成功", Data: data.Email}
-// 	}
-// }

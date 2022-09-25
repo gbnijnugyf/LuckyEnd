@@ -1,18 +1,32 @@
 package mysql
 
 import (
+	"fmt"
+
+	"github.com/shawu21/test/config"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	_ "gorm.io/driver/mysql"
 )
 
 var MySqlDb *gorm.DB
 var MySqlDbErr error
 
-// func init() {
-// 	dbDSN := "root:237156@(127.0.0.1:3306)/mytest?charset=utf8mb4&parseTime=True&loc=Local"
-// 	MySqlDb, MySqlDbErr = gorm.Open("mysql", dbDSN)
-
-// 	if MySqlDbErr != nil {
-// 		panic("database open error" + MySqlDbErr.Error())
-// 	}
-// }
+func init() {
+	dbConfig := config.GetDbConfig()
+	dbDSN := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=%s&parseTime=%v&loc=%s",
+		dbConfig.Username,
+		dbConfig.Password,
+		dbConfig.Hostname,
+		dbConfig.Port,
+		dbConfig.Dbname,
+		dbConfig.Charset,
+		dbConfig.ParseTime,
+		dbConfig.Local,
+	)
+	MySqlDb, MySqlDbErr = gorm.Open(mysql.Open(dbDSN), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
+	if MySqlDbErr != nil {
+		panic("database open error" + MySqlDbErr.Error())
+	}
+}
