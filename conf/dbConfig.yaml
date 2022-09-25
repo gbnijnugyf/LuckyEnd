@@ -1,6 +1,6 @@
 username: "root"
 password: "237156"
-hostname: "127.0.0.1"
+hostname: "host.docker.internal"
 port: 3306
 dbname: "lucky"
 charset: "utf8mb4"
