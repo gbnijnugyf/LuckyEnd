@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shawu21/test/router"
+	"github.com/shawu21/LuckyBackend/router"
 	log "github.com/sirupsen/logrus"
 )
 

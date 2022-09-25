@@ -1,4 +1,4 @@
-module github.com/shawu21/test
+module github.com/shawu21/LuckyBackend
 
 go 1.18
 

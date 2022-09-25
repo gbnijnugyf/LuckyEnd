@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/shawu21/test/common"
-	"github.com/shawu21/test/helper"
-	"github.com/shawu21/test/model"
+	"github.com/shawu21/LuckyBackend/common"
+	"github.com/shawu21/LuckyBackend/helper"
+	"github.com/shawu21/LuckyBackend/model"
 
 	"github.com/gin-gonic/gin"
 )

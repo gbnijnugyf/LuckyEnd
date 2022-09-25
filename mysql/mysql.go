@@ -3,7 +3,7 @@ package mysql
 import (
 	"fmt"
 
-	"github.com/shawu21/test/config"
+	"github.com/shawu21/LuckyBackend/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
