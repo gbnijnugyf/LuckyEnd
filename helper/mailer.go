@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/shawu21/test/common"
-	"github.com/shawu21/test/config"
+	"github.com/shawu21/LuckyBackend/common"
+	"github.com/shawu21/LuckyBackend/config"
 
 	"gopkg.in/gomail.v2"
 )

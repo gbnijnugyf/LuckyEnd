@@ -7,8 +7,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/shawu21/test/common"
-	"github.com/shawu21/test/helper"
+	"github.com/shawu21/LuckyBackend/common"
+	"github.com/shawu21/LuckyBackend/helper"
 )
 
 type Desires struct {

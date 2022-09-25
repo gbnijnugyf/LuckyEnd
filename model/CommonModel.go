@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/shawu21/test/mysql"
+	"github.com/shawu21/LuckyBackend/mysql"
 	"gorm.io/gorm"
 )
 

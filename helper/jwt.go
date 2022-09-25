@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/shawu21/test/common"
+	"github.com/shawu21/LuckyBackend/common"
 
 	"github.com/golang-jwt/jwt/v4"
 )

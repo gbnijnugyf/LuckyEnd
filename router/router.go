@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/shawu21/test/controller"
-	"github.com/shawu21/test/middleware"
+	"github.com/shawu21/LuckyBackend/controller"
+	"github.com/shawu21/LuckyBackend/middleware"
 
 	"github.com/gin-gonic/gin"
 )

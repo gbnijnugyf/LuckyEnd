@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/shawu21/test/common"
-	"github.com/shawu21/test/model"
+	"github.com/shawu21/LuckyBackend/common"
+	"github.com/shawu21/LuckyBackend/model"
 	log "github.com/sirupsen/logrus"
 )
 
