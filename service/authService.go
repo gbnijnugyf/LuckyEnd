@@ -66,7 +66,6 @@ func SendForm(email, secret string) (string, error) {
 		log.Errorf("client do error %+v", err)
 		return "", err
 	}
-
 	body, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
