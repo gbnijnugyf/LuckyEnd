@@ -22,11 +22,11 @@ func GetMailConfig() MailConfig {
 	var mailConfig MailConfig
 	yamlFile, err := os.ReadFile("./conf/mailConfig.yaml")
 	if err != nil {
-		log.Errorf("read file error + %+v", errors.WithStack(err))
+		log.Errorf("read file error: %+v", errors.WithStack(err))
 	}
 	err = yaml.Unmarshal(yamlFile, &mailConfig)
 	if err != nil {
-		log.Errorf("unmarshal error + %+v", errors.WithStack(err))
+		log.Errorf("unmarshal error: %+v", errors.WithStack(err))
 	}
 	return mailConfig
 }

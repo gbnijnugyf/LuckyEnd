@@ -3,13 +3,18 @@ package router
 import (
 	"github.com/shawu21/LuckyBackend/controller"
 	"github.com/shawu21/LuckyBackend/middleware"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Routers(r *gin.Engine) {
 	r.POST("api/whutlogin", controller.Login)
-
+	r.GET("api/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
 	api := r.Group("api/")
 	api.Use(middleware.AuthMiddleware)
 	{
