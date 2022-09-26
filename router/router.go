@@ -1,9 +1,10 @@
 package router
 
 import (
+	"net/http"
+
 	"github.com/shawu21/LuckyBackend/controller"
 	"github.com/shawu21/LuckyBackend/middleware"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,6 +16,7 @@ func Routers(r *gin.Engine) {
 			"message": "pong",
 		})
 	})
+
 	api := r.Group("api/")
 	api.Use(middleware.AuthMiddleware)
 	{
