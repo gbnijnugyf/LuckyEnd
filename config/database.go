@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type DbConfig struct {
+type dbConfig struct {
 	Username  string `yaml:"username"`
 	Password  string `yaml:"password"`
 	Hostname  string `yaml:"hostname"`
@@ -20,15 +20,19 @@ type DbConfig struct {
 	Local     string `yaml:"local"`
 }
 
-func GetDbConfig() DbConfig {
+type DbConfig struct {
+	DbConfig dbConfig `yaml:"dbConfig"`
+}
+
+func GetDbConfig() dbConfig {
 	var dbConfig DbConfig
 	yamlFile, err := os.ReadFile("./conf/dbConfig.yaml")
 	if err != nil {
-		log.Errorf("read file error + %+v", errors.WithStack(err))
+		log.Errorf("read file error: %+v", errors.WithStack(err))
 	}
 	err = yaml.Unmarshal(yamlFile, &dbConfig)
 	if err != nil {
-		log.Errorf("unmarshal error + %+v", errors.WithStack(err))
+		log.Errorf("unmarshal error: %+v", errors.WithStack(err))
 	}
-	return dbConfig
+	return dbConfig.DbConfig
 }

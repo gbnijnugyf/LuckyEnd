@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type MailConfig struct {
+type mailConfig struct {
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
 	From     string `yaml:"from"`
@@ -18,7 +18,11 @@ type MailConfig struct {
 	Password string `yaml:"password"`
 }
 
-func GetMailConfig() MailConfig {
+type MailConfig struct {
+	MailConfig mailConfig `yaml:"mailConfig"`
+}
+
+func GetMailConfig() mailConfig {
 	var mailConfig MailConfig
 	yamlFile, err := os.ReadFile("./conf/mailConfig.yaml")
 	if err != nil {
@@ -28,5 +32,5 @@ func GetMailConfig() MailConfig {
 	if err != nil {
 		log.Errorf("unmarshal error: %+v", errors.WithStack(err))
 	}
-	return mailConfig
+	return mailConfig.MailConfig
 }
