@@ -1,0 +1,17 @@
+version: "3"
+services:
+  mysql:
+    image: "mysql"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 237156 
+      MYSQL_DATABASE: lucky
+  lucky:
+    depends_on:
+      - mysql
+    build: .
+    ports:
+      - "8080:8080"
+    restart: always
+    links:
+      - mysql
