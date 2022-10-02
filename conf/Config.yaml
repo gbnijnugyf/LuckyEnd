@@ -1,0 +1,16 @@
+dbConfig:
+  username: "root"
+  password: "237156"
+  hostname: "host.docker.internal"
+  port: 3306
+  dbname: "lucky"
+  charset: "utf8mb4"
+  parseTime: true
+  local: "Local"
+mailConfig:
+  host: "smtp.feishu.cn"
+  port: 465
+  from: "UNI@itoken.team"
+  fromName: "小幸运"
+  username: "UNI@itoken.team"
+  password: "teTxnl1djwZZdVo2"
