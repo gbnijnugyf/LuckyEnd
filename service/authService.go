@@ -44,7 +44,7 @@ func GetInfo(token string) (*model.User, error) {
 	user.Email = res["email"].(string)
 	user.Tel = res["phone"].(string)
 	user.QQ = res["qq"].(string)
-	user.Gender = int(res["gender"].(float64)) // interface无法直接转为int类型
+	user.Gender = res["gender"].(int)
 	user.IdcardNumber = res["id"].(string)
 	user.School = common.Whut
 	return user, nil
@@ -66,7 +66,6 @@ func SendForm(email, secret string) (string, error) {
 		log.Errorf("client do error %+v", err)
 		return "", err
 	}
-
 	body, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
