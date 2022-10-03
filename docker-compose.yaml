@@ -9,7 +9,7 @@ services:
   lucky:
     depends_on:
       - mysql
-    build: .
+    image: "shawu21/lucky-backend"
     ports:
       - "8080:8080"
     restart: always
