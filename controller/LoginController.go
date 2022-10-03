@@ -17,12 +17,12 @@ func Login(c *gin.Context) {
 	userLogin := &model.UserLogin{}
 	if err := c.ShouldBindJSON(userLogin); err != nil {
 		log.Errorf("Invalid Param %+v", errors.WithStack(err))
-		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "数据绑定失败", err))
+		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "数据绑定失败", err))
 		return
 	}
 	accessToken, err := service.SendForm(userLogin.Email, userLogin.Password)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, helper.ApiReturn(common.CodeError, "登录失败", err))
+		c.JSON(http.StatusOK, helper.ApiReturn(common.CodeError, "登录失败", err))
 		return
 	}
 	if accessToken == "" {
